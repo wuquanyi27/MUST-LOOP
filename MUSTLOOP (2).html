@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5">
+    <title>MustLoop · 最终完整版（全功能可点击）</title>
+    <!-- Font Awesome 5 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        /* 基础样式与之前一致 */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: #f4f7fb; color: #1e2b3c; line-height: 1.5; padding: 1rem; }
+        .container { max-width: 1280px; margin: 0 auto; }
+
+        /* 登录页样式 */
+        .login-page {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 90vh;
+        }
+        .login-card {
+            background: white;
+            border-radius: 40px;
+            padding: 3rem;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 30px 50px rgba(0,30,60,0.1);
+        }
+        .login-card .logo {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .tab-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #ecf1f6;
+        }
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            color: #7f8fa4;
+        }
+        .tab.active {
+            color: #2a9d8f;
+            border-bottom: 3px solid #2a9d8f;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .form-group { margin-bottom: 1.5rem; position: relative; }
+        .form-group label { font-weight: 500; display: block; margin-bottom: 0.3rem; }
+        .form-group label .required { color: red; margin-left: 2px; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 0.8rem 1rem; border: 1.5px solid #dbe4ed; border-radius: 30px; font-size: 1rem;
+        }
+        .password-wrapper { position: relative; }
+        .password-wrapper input { padding-right: 2.5rem; }
+        .password-wrapper i {
+            position: absolute; right: 1rem; top: 50%; transform: translateY(-50%);
+            cursor: pointer; color: #7f8fa4; font-size: 1.2rem; z-index: 10;
+        }
+        .btn-primary {
+            background: #2a9d8f; border: none; padding: 0.9rem; border-radius: 60px;
+            font-weight: 600; font-size: 1rem; color: white; cursor: pointer;
+            width: 100%; transition: 0.2s;
+        }
+        .btn-primary:hover { background: #238b7e; }
+        .error-message { color: red; font-size: 0.8rem; margin-top: 0.2rem; display: none; }
+
+        /* 主应用样式 */
+        .main-app { display: none; }
+        .navbar {
+            display: flex; justify-content: space-between; align-items: center;
+            background: white; padding: 0.8rem 2rem; border-radius: 60px;
+            box-shadow: 0 8px 20px rgba(0,20,50,0.06); margin-bottom: 2rem; flex-wrap: wrap;
+        }
+        .logo { font-weight: 700; font-size: 1.8rem; letter-spacing: -0.5px; color: #0f3b5e; cursor: pointer; }
+        .logo span { color: #2a9d8f; }
+        .nav-links { display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; }
+        .nav-links a { text-decoration: none; color: #2c3e50; font-weight: 500; transition: 0.2s; cursor: pointer; }
+        .nav-links a:hover { color: #2a9d8f; }
+        .lang-toggle { background: #eef2f6; border: none; padding: 0.4rem 1rem; border-radius: 40px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+        .btn-logout {
+            background: #dc3545; color: white !important; padding: 0.5rem 1.5rem; border-radius: 40px; font-weight: 600;
+            display: inline-flex; align-items: center; gap: 0.3rem;
+        }
+        .page { display: none; }
+        .page.active { display: block; }
+        .card-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; margin: 2rem 0;
+        }
+        .item-card {
+            background: white; border-radius: 24px; padding: 1.5rem;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.02); border: 1px solid #ecf1f6; transition: 0.2s; cursor: pointer;
+        }
+        .item-card:hover { transform: translateY(-4px); box-shadow: 0 20px 30px rgba(42,157,143,0.1); }
+        .item-card .title { font-weight: 600; font-size: 1.2rem; margin: 0.5rem 0; }
+        .item-card .meta { color: #4f6f8f; font-size: 0.9rem; display: flex; gap: 1rem; margin: 0.5rem 0; }
+        .btn-outline {
+            background: transparent; border: 1.5px solid #0f3b5e; padding: 0.5rem 1.2rem;
+            border-radius: 40px; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 0.9rem; color: #0f3b5e;
+        }
+        .btn-outline:hover { background: #e7f0f9; }
+        .btn-back {
+            background: transparent; border: 1px solid #b0c4d9; padding: 0.5rem 1.2rem; border-radius: 40px;
+            cursor: pointer; margin-bottom: 1.5rem; display: inline-flex; align-items: center; gap: 8px;
+        }
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 2000;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: white; border-radius: 32px; max-width: 500px; width: 90%; max-height: 80vh;
+            overflow-y: auto; padding: 2rem; box-shadow: 0 40px 70px rgba(0,0,0,0.3);
+        }
+        .modal-close { float: right; font-size: 1.5rem; cursor: pointer; color: #7f8fa4; }
+        .image-upload-area {
+            border: 2px dashed #b0c4d9; border-radius: 30px; padding: 1.5rem; text-align: center;
+            color: #4f6f8f; cursor: pointer; transition: 0.2s;
+        }
+        .image-upload-area:hover { background: #f0f5fa; }
+        .image-preview {
+            display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;
+        }
+        .image-preview img { width: 60px; height: 60px; object-fit: cover; border-radius: 12px; border: 1px solid #ddd; }
+        .avatar-preview { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #2a9d8f; }
+        .my-section {
+            background: white; border-radius: 24px; padding: 1.5rem; margin-bottom: 1.5rem;
+        }
+        .my-section h3 { margin-bottom: 1rem; color: #0f3b5e; }
+        .my-item {
+            display: flex; justify-content: space-between; align-items: center; padding: 0.8rem 0;
+            border-bottom: 1px solid #ecf1f6;
+        }
+        .my-item:last-child { border-bottom: none; }
+        .my-item .actions {
+            display: flex; gap: 0.5rem; align-items: center;
+        }
+        .reputation-badge {
+            display: inline-block; background: #ffd966; color: #7a4d00; padding: 0.2rem 0.8rem;
+            border-radius: 40px; font-size: 0.8rem; font-weight: 600;
+        }
+        .chat-window {
+            background: #f0f4f9; border-radius: 24px; padding: 1rem; height: 250px; overflow-y: auto;
+            display: flex; flex-direction: column; gap: 0.8rem; margin: 1rem 0;
+        }
+        .chat-message {
+            max-width: 70%; padding: 0.6rem 1rem; border-radius: 20px; background: white; align-self: flex-start;
+            word-wrap: break-word;
+        }
+        .chat-message.own { background: #2a9d8f; color: white; align-self: flex-end; }
+        .chat-input { display: flex; gap: 0.5rem; }
+        .chat-footer {
+            display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;
+        }
+        .chat-footer button {
+            background: none; border: none; color: #7f8fa4; cursor: pointer; font-size: 0.9rem;
+        }
+        .chat-footer button:hover { color: #2a9d8f; }
+        [data-lang="en"] .lang-zh { display: none; }
+        [data-lang="zh"] .lang-en { display: none; }
+        .footer { text-align: center; color: #6b7c93; padding: 2rem 0 1rem; margin-top: 3rem; border-top: 1px solid #dae2ec; }
+    </style>
+</head>
+<body data-lang="zh">
+<div class="container">
+
+    <!-- ========== 登录/注册页面 ========== -->
+    <div id="loginPage" class="login-page">
+        <div class="login-card">
+            <div class="logo">Must<span>Loop</span></div>
+            <div class="tab-bar">
+                <div class="tab active" onclick="switchTab('login')">登录</div>
+                <div class="tab" onclick="switchTab('register')">注册</div>
+            </div>
+            <!-- 登录 -->
+            <div id="loginTab" class="tab-content active">
+                <div class="form-group">
+                    <label>学号 <span class="required">*</span></label>
+                    <input type="text" id="loginId" placeholder="10位数字" maxlength="10" pattern="\d{10}">
+                </div>
+                <div class="form-group password-wrapper">
+                    <label>密码 <span class="required">*</span></label>
+                    <input type="password" id="loginPassword" placeholder="••••••••">
+                    <i class="fas fa-eye-slash" onclick="togglePassword('loginPassword', this)"></i>
+                </div>
+                <button class="btn-primary" onclick="doLogin()">登录</button>
+                <div id="loginError" style="color:red; margin-top:0.5rem; display:none;">学号或密码错误</div>
+            </div>
+            <!-- 注册 -->
+            <div id="registerTab" class="tab-content">
+                <div class="form-group">
+                    <label>学号 <span class="required">*</span></label>
+                    <input type="text" id="regId" placeholder="10位数字" maxlength="10" pattern="\d{10}" onblur="validateRegId()">
+                    <div class="error-message" id="regIdError">学号必须为10位数字</div>
+                </div>
+                <div class="form-group password-wrapper">
+                    <label>密码 <span class="required">*</span></label>
+                    <input type="password" id="regPassword">
+                    <i class="fas fa-eye-slash" onclick="togglePassword('regPassword', this)"></i>
+                </div>
+                <div class="form-group password-wrapper">
+                    <label>确认密码 <span class="required">*</span></label>
+                    <input type="password" id="regConfirmPassword">
+                    <i class="fas fa-eye-slash" onclick="togglePassword('regConfirmPassword', this)"></i>
+                </div>
+                <div class="form-group">
+                    <label>学院 <span class="required">*</span></label>
+                    <select id="regCollege">
+                        <option value="">-- 请选择 --</option>
+                        <option>创新工程学院</option>
+                        <option>商学院</option>
+                        <option>法学院</option>
+                        <option>博雅学院</option>
+                        <option>酒店与旅游管理学院</option>
+                        <option>其他</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>入学年份 <span class="required">*</span></label>
+                    <input type="number" id="regYear" min="2010" max="2030" value="2023">
+                </div>
+                <button class="btn-primary" onclick="doRegister()">注册</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 主应用 ========== -->
+    <div id="mainApp" class="main-app">
+        <!-- 导航栏 -->
+        <nav class="navbar">
+            <div class="logo" id="homeLogo">Must<span>Loop</span></div>
+            <div class="nav-links">
+                <a class="nav-home lang-zh">首页</a>
+                <a class="nav-home lang-en">Home</a>
+                <a class="nav-market lang-zh">市场</a>
+                <a class="nav-market lang-en">Market</a>
+                <a class="nav-skill lang-zh">技能</a>
+                <a class="nav-skill lang-en">Skills</a>
+                <a class="nav-project lang-zh">项目</a>
+                <a class="nav-project lang-en">Projects</a>
+                <a class="nav-task lang-zh">任务</a>
+                <a class="nav-task lang-en">Tasks</a>
+                <a class="nav-my lang-zh">我的</a>
+                <a class="nav-my lang-en">My</a>
+                <button class="lang-toggle" id="langToggle">
+                    <i class="fas fa-globe"></i>
+                    <span class="lang-zh">English</span>
+                    <span class="lang-en">中文</span>
+                </button>
+                <a href="#" class="btn-logout" id="logoutBtn">
+                    <span class="lang-zh">退出</span>
+                    <span class="lang-en">Logout</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- 首页 -->
+        <div id="homePage" class="page active">
+            <div style="background: white; border-radius: 40px; padding: 3rem; margin-bottom: 2rem;">
+                <h1 class="lang-zh" style="font-size: 3rem; color: #0f3b5e;">让闲置流动，让才华相遇</h1>
+                <h1 class="lang-en" style="font-size: 3rem; color: #0f3b5e;">Share, connect, and thrive on campus</h1>
+                <p class="lang-zh" style="font-size: 1.3rem; margin: 1rem 0;">MustLoop 是澳科大专属的可持续协作平台——二手交易、技能交换、项目组队、日常互助，都在这里。</p>
+                <p class="lang-en" style="font-size: 1.3rem; margin: 1rem 0;">MustLoop is MUST’s own platform for circular economy and collaboration: second‑hand, skills, projects, and quick tasks.</p>
+                <button class="btn-primary lang-zh" onclick="showPage('market')">开始使用</button>
+                <button class="btn-primary lang-en" onclick="showPage('market')">Get Started</button>
+            </div>
+            <h2 class="lang-zh">核心功能</h2>
+            <h2 class="lang-en">Core Features</h2>
+            <div class="card-grid">
+                <div class="item-card" onclick="showPage('market')">
+                    <i class="fas fa-exchange-alt" style="font-size: 2.5rem; color:#2a9d8f;"></i>
+                    <div class="title lang-zh">循环市场</div>
+                    <div class="title lang-en">Circular Market</div>
+                    <p class="lang-zh">发布二手教材、电子产品，买卖便捷，内置私信，交易后互评。</p>
+                    <p class="lang-en">Buy & sell used textbooks, electronics. In‑app chat & mutual ratings.</p>
+                </div>
+                <div class="item-card" onclick="showPage('skill')">
+                    <i class="fas fa-graduation-cap" style="font-size: 2.5rem; color:#2a9d8f;"></i>
+                    <div class="title lang-zh">技能银行</div>
+                    <div class="title lang-en">Skill Bank</div>
+                    <p class="lang-zh">发布技能卡片，预约时段，赚取MUST币。</p>
+                    <p class="lang-en">Offer or find skills, book sessions, earn MUST coins.</p>
+                </div>
+                <div class="item-card" onclick="showPage('project')">
+                    <i class="fas fa-rocket" style="font-size: 2.5rem; color:#2a9d8f;"></i>
+                    <div class="title lang-zh">项目孵化板</div>
+                    <div class="title lang-en">Project Board</div>
+                    <p class="lang-zh">发布创业/研究项目，招募跨专业队友。</p>
+                    <p class="lang-en">Post startup/research ideas, recruit teammates.</p>
+                </div>
+                <div class="item-card" onclick="showPage('task')">
+                    <i class="fas fa-tasks" style="font-size: 2.5rem; color:#2a9d8f;"></i>
+                    <div class="title lang-zh">社区任务板</div>
+                    <div class="title lang-en">Task Board</div>
+                    <p class="lang-zh">发布悬赏小任务，一键接单，MUST币自动转移。</p>
+                    <p class="lang-en">Post quick tasks, one‑click claim, auto coin transfer.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 循环市场页面 -->
+        <div id="marketPage" class="page">
+            <button class="btn-back" onclick="showHome()"><i class="fas fa-arrow-left"></i> <span class="lang-zh">返回首页</span><span class="lang-en">Back</span></button>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2 class="lang-zh">循环市场</h2>
+                <h2 class="lang-en">Circular Market</h2>
+                <button class="btn-primary" onclick="showModal('postItemModal')"><i class="fas fa-plus"></i> <span class="lang-zh">发布商品</span><span class="lang-en">Post Item</span></button>
+            </div>
+            <div class="card-grid">
+                <div class="item-card" onclick="showItemDetail('经济学原理 (第8版)', '李明', 4.8, '30 MOP', '几乎全新', '正版教材，无笔记，图书馆自取。', 'https://via.placeholder.com/150')">
+                    <img src="https://via.placeholder.com/150" style="width:100%; border-radius:16px;">
+                    <div class="title">经济学原理 (第8版)</div>
+                    <div class="meta"><span>📚 教材</span> <span>💰 30 MOP</span></div>
+                    <div><span class="reputation-badge">卖家 ★4.8</span></div>
+                </div>
+                <div class="item-card" onclick="showItemDetail('小米充电宝 20000mAh', '赵婷', 4.5, '免费', '轻微痕迹', '功能正常，F座自取。', 'https://via.placeholder.com/150')">
+                    <img src="https://via.placeholder.com/150" style="width:100%; border-radius:16px;">
+                    <div class="title">小米充电宝 20000mAh</div>
+                    <div class="meta"><span>📱 电子产品</span> <span>💰 免费</span></div>
+                    <div><span class="reputation-badge">卖家 ★4.5</span></div>
+                </div>
+                <div class="item-card" onclick="showItemDetail('高等数学辅导书', '王强', 4.7, '20 MOP', '全新', '全新未使用，可面交。', 'https://via.placeholder.com/150')">
+                    <img src="https://via.placeholder.com/150" style="width:100%; border-radius:16px;">
+                    <div class="title">高等数学辅导书</div>
+                    <div class="meta"><span>📚 教材</span> <span>💰 20 MOP</span></div>
+                    <div><span class="reputation-badge">卖家 ★4.7</span></div>
+                </div>
+                <div class="item-card" onclick="showItemDetail('蓝牙耳机', '陈晨', 4.6, '50 MOP', '良好', '使用半年，功能完好。', 'https://via.placeholder.com/150')">
+                    <img src="https://via.placeholder.com/150" style="width:100%; border-radius:16px;">
+                    <div class="title">蓝牙耳机</div>
+                    <div class="meta"><span>📱 电子产品</span> <span>💰 50 MOP</span></div>
+                    <div><span class="reputation-badge">卖家 ★4.6</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 技能银行页面 -->
+        <div id="skillPage" class="page">
+            <button class="btn-back" onclick="showHome()"><i class="fas fa-arrow-left"></i> <span class="lang-zh">返回首页</span><span class="lang-en">Back</span></button>
+            <div style="display: flex; justify-content: space-between;">
+                <h2 class="lang-zh">技能银行</h2>
+                <h2 class="lang-en">Skill Bank</h2>
+                <button class="btn-primary" onclick="showModal('postSkillModal')"><i class="fas fa-plus"></i> <span class="lang-zh">发布技能</span><span class="lang-en">Post Skill</span></button>
+            </div>
+            <div class="card-grid">
+                <div class="item-card" onclick="showSkillDetail('Python入门辅导', '王磊', 4.9, '50 MUST币/小时', '适合零基础，帮助完成课程作业。', 'https://via.placeholder.com/150')">
+                    <img src="https://via.placeholder.com/150" style="width:100%; border-radius:16px;">
+                    <div class="title">Python入门辅导</div>
+                    <div class="meta">💻 编程 · 50 MUST币/小时</div>
+                    <div><span class="reputation-badge">提供者 ★4.9</span></div>
+                </div>
+                <div class="item-card" onclick="showSkillDetail('葡萄牙语基础会话', '陈静', 4.7, '40 MOP/小时', '日常会话，可练习口语。', 'https://via.placeholder.com/150')">
+                    <img src="https://via.placeholder.com/150" style="width:100%; border-radius:16px;">
+                    <div class="title">葡萄牙语基础会话</div>
+                    <div class="meta">🗣️ 语言 · 40 MOP/小时</div>
+                    <div><span class="reputation-badge">提供者 ★4.7</span></div>
+                </div>
+                <div class="item-card" onclick="showSkillDetail('吉他入门', '赵岩', 4.8, '60 MUST币/小时', '民谣吉他，零基础可学。', 'https://via.placeholder.com/150')">
+                    <img src="https://via.placeholder.com/150" style="width:100%; border-radius:16px;">
+                    <div class="title">吉他入门</div>
+                    <div class="meta">🎸 音乐 · 60 MUST币/小时</div>
+                    <div><span class="reputation-badge">提供者 ★4.8</span></div>
+                </div>
+                <div class="item-card" onclick="showSkillDetail('PS修图教学', '刘颖', 4.6, '30 MOP/小时', 'Photoshop基础到进阶。', 'https://via.placeholder.com/150')">
+                    <img src="https://via.placeholder.com/150" style="width:100%; border-radius:16px;">
+                    <div class="title">PS修图教学</div>
+                    <div class="meta">🎨 设计 · 30 MOP/小时</div>
+                    <div><span class="reputation-badge">提供者 ★4.6</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 项目孵化板 -->
+        <div id="projectPage" class="page">
+            <button class="btn-back" onclick="showHome()"><i class="fas fa-arrow-left"></i> <span class="lang-zh">返回首页</span><span class="lang-en">Back</span></button>
+            <div style="display: flex; justify-content: space-between;">
+                <h2>项目孵化板</h2>
+                <button class="btn-primary" onclick="showModal('postProjectModal')"><i class="fas fa-plus"></i> 发起项目</button>
+            </div>
+            <div class="card-grid">
+                <div class="item-card" onclick="showProjectDetail('智能垃圾分类', '张明', 4.8, '招募: UI设计, 后端开发', '开发垃圾分类小程序', 'https://via.placeholder.com/150')">
+                    <img src="https://via.placeholder.com/150" style="width:100%; border-radius:16px;">
+                    <div class="title">智能垃圾分类</div>
+                    <div class="meta">💡 创业 · 招募: UI设计, 后端开发</div>
+                    <div><span class="reputation-badge">发起人 ★4.8</span></div>
+                </div>
+                <div class="item-card" onclick="showProjectDetail('校园植物图鉴App', '刘芳', 4.5, '招募: 植物学, 摄影', '制作校园植物科普App', 'https://via.placeholder.com/150')">
+                    <img src="https://via.placeholder.com/150" style="width:100%; border-radius:16px;">
+                    <div class="title">校园植物图鉴App</div>
+                    <div class="meta">🌿 研究 · 招募: 植物学, 摄影</div>
+                    <div><span class="reputation-badge">发起人 ★4.5</span></div>
+                </div>
+                <div class="item-card" onclick="showProjectDetail('校园二手书回收平台', '李伟', 4.7, '招募: 开发, 运营', '搭建校内二手书循环系统', 'https://via.placeholder.com/150')">
+                    <img src="https://via.placeholder.com/150" style="width:100%; border-radius:16px;">
+                    <div class="title">校园二手书回收平台</div>
+                    <div class="meta">♻️ 公益 · 招募: 开发, 运营</div>
+                    <div><span class="reputation-badge">发起人 ★4.7</span></div>
+                </div>
+                <div class="item-card" onclick="showProjectDetail('AI学习小组', '周梅', 4.9, '招募: 对AI感兴趣的同学', '一起学习机器学习基础', 'https://via.placeholder.com/150')">
+                    <img src="https://via.placeholder.com/150" style="width:100%; border-radius:16px;">
+                    <div class="title">AI学习小组</div>
+                    <div class="meta">🤖 学习 · 招募: 对AI感兴趣的同学</div>
+                    <div><span class="reputation-badge">发起人 ★4.9</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 任务板 -->
+        <div id="taskPage" class="page">
+            <button class="btn-back" onclick="showHome()"><i class="fas fa-arrow-left"></i> <span class="lang-zh">返回首页</span><span class="lang-en">Back</span></button>
+            <div style="display: flex; justify-content: space-between;">
+                <h2>社区任务板</h2>
+                <button class="btn-primary" onclick="showModal('postTaskModal')"><i class="fas fa-plus"></i> 发布任务</button>
+            </div>
+            <div class="card-grid">
+                <div class="item-card" onclick="showTaskDetail('帮忙取快递 (F座)', '赵婷', 4.6, '5 MUST币', '快递在F座一楼快递柜，取后送到A座101。', 'https://via.placeholder.com/150')">
+                    <img src="https://via.placeholder.com/150" style="width:100%; border-radius:16px;">
+                    <div class="title">帮忙取快递 (F座)</div>
+                    <div class="meta">悬赏: 5 MUST币 · 截止 今天18:00</div>
+                    <div><span class="reputation-badge">发布者 ★4.6</span></div>
+                </div>
+                <div class="item-card" onclick="showTaskDetail('求教打印机使用', '钱宇', 4.9, '一杯奶茶', '图书馆打印机不会用，求指导。', 'https://via.placeholder.com/150')">
+                    <img src="https://via.placeholder.com/150" style="width:100%; border-radius:16px;">
+                    <div class="title">求教打印机使用 (图书馆)</div>
+                    <div class="meta">悬赏: 一杯奶茶 · 即时</div>
+                    <div><span class="reputation-badge">发布者 ★4.9</span></div>
+                </div>
+                <div class="item-card" onclick="showTaskDetail('代购午饭', '孙立', 4.5, '10 MUST币', '希望带一份烧腊饭到A座。', 'https://via.placeholder.com/150')">
+                    <img src="https://via.placeholder.com/150" style="width:100%; border-radius:16px;">
+                    <div class="title">代购午饭</div>
+                    <div class="meta">悬赏: 10 MUST币 · 12:00前</div>
+                    <div><span class="reputation-badge">发布者 ★4.5</span></div>
+                </div>
+                <div class="item-card" onclick="showTaskDetail('帮忙搬书', '吴迪', 4.8, '15 MUST币', '从图书馆搬一箱书到宿舍', 'https://via.placeholder.com/150')">
+                    <img src="https://via.placeholder.com/150" style="width:100%; border-radius:16px;">
+                    <div class="title">帮忙搬书</div>
+                    <div class="meta">悬赏: 15 MUST币 · 今天下午</div>
+                    <div><span class="reputation-badge">发布者 ★4.8</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- “我的”页面（动态渲染） -->
+        <div id="myPage" class="page">
+            <button class="btn-back" onclick="showHome()"><i class="fas fa-arrow-left"></i> <span class="lang-zh">返回首页</span><span class="lang-en">Back</span></button>
+            <h2 class="lang-zh">个人中心</h2>
+            <h2 class="lang-en">My Profile</h2>
+            <div class="my-section" id="profileSection">
+                <div style="display: flex; align-items: center; gap: 2rem; flex-wrap: wrap;">
+                    <img id="profileAvatar" src="https://via.placeholder.com/80" class="avatar-preview">
+                    <div>
+                        <h3 id="profileName">李明 (1230009568)</h3>
+                        <p id="profileCollege">创新工程学院 · 2023级</p>
+                        <div class="reputation-badge">★★★★★ 4.92 (48次评价)</div>
+                    </div>
+                    <button class="btn-outline" onclick="showModal('editProfileModal')">编辑资料</button>
+                </div>
+            </div>
+            <div class="my-section">
+                <h3 class="lang-zh">我的发布</h3>
+                <h3 class="lang-en">My Posts</h3>
+                <div id="myPostsContainer"></div>
+            </div>
+            <div class="my-section">
+                <h3 class="lang-zh">我参与的</h3>
+                <h3 class="lang-en">My Participations</h3>
+                <div id="myParticipationsContainer"></div>
+            </div>
+        </div>
+
+        <!-- ========== 所有模态框 ========== -->
+        <!-- 商品发布 -->
+        <div class="modal" id="postItemModal">
+            <div class="modal-content">
+                <span class="modal-close" onclick="closeModal('postItemModal')">&times;</span>
+                <h3 class="lang-zh">发布商品</h3>
+                <h3 class="lang-en">Post Item</h3>
+                <div class="form-group"><label>标题 <span class="required">*</span></label><input type="text" id="itemTitle" value="经济学原理 (第8版)"></div>
+                <div class="form-group"><label>分类</label><select id="itemCategory"><option>教材</option><option>电子产品</option><option>家居</option></select></div>
+                <div class="form-group"><label>图片</label><div class="image-upload-area" onclick="triggerFileUpload('itemImages')"><i class="fas fa-cloud-upload-alt"></i> 点击上传</div><input type="file" id="itemImages" accept="image/*" multiple style="display:none;" onchange="previewImages('itemImages', 'itemPreview')"><div class="image-preview" id="itemPreview"></div></div>
+                <div class="form-group"><label>新旧程度</label><select id="itemCondition"><option>全新</option><option>几乎全新</option></select></div>
+                <div class="form-group"><label>价格 (MOP) <span class="required">*</span></label><input type="number" id="itemPrice" value="30" min="0"></div>
+                <div class="form-group"><label>交易地点</label><input type="text" id="itemLocation" value="图书馆"></div>
+                <button class="btn-primary" onclick="publishItem()">发布</button>
+            </div>
+        </div>
+        <!-- 技能发布 -->
+        <div class="modal" id="postSkillModal">
+            <div class="modal-content">
+                <span class="modal-close" onclick="closeModal('postSkillModal')">&times;</span>
+                <h3>发布技能</h3>
+                <div class="form-group"><label>技能名称 <span class="required">*</span></label><input type="text" id="skillName" value="Python入门辅导"></div>
+                <div class="form-group"><label>类别</label><select id="skillCategory"><option>编程</option><option>设计</option></select></div>
+                <div class="form-group"><label>图片</label><div class="image-upload-area" onclick="triggerFileUpload('skillImages')"><i class="fas fa-cloud-upload-alt"></i> 点击上传</div><input type="file" id="skillImages" accept="image/*" multiple style="display:none;" onchange="previewImages('skillImages', 'skillPreview')"><div class="image-preview" id="skillPreview"></div></div>
+                <div class="form-group"><label>描述</label><textarea id="skillDesc" rows="3">适合零基础，帮助完成课程作业。</textarea></div>
+                <div class="form-group"><label>收费标准</label><select id="skillRateType"><option>MUST币/小时</option><option>MOP/小时</option></select><input type="number" id="skillRateValue" min="0" value="50" placeholder="金额" style="margin-top:0.5rem;"></div>
+                <div class="form-group"><label>可预约时间</label><input type="text" id="skillAvailable" value="周一至周五19-21点"></div>
+                <button class="btn-primary" onclick="publishSkill()">发布</button>
+            </div>
+        </div>
+        <!-- 项目发布 -->
+        <div class="modal" id="postProjectModal">
+            <div class="modal-content">
+                <span class="modal-close" onclick="closeModal('postProjectModal')">&times;</span>
+                <h3>发起项目</h3>
+                <div class="form-group"><label>项目名称 <span class="required">*</span></label><input type="text" id="projectName" value="智能垃圾分类"></div>
+                <div class="form-group"><label>类型</label><select id="projectType"><option>创业</option><option>研究</option></select></div>
+                <div class="form-group"><label>图片</label><div class="image-upload-area" onclick="triggerFileUpload('projectImages')"><i class="fas fa-cloud-upload-alt"></i> 点击上传</div><input type="file" id="projectImages" accept="image/*" multiple style="display:none;" onchange="previewImages('projectImages', 'projectPreview')"><div class="image-preview" id="projectPreview"></div></div>
+                <div class="form-group"><label>描述</label><textarea id="projectDesc" rows="3">开发垃圾分类小程序</textarea></div>
+                <div class="form-group"><label>招募角色</label><input type="text" id="projectRoles" value="UI设计, 后端开发"></div>
+                <div class="form-group"><label>截止日期</label><input type="date" id="projectDeadline"></div>
+                <button class="btn-primary" onclick="publishProject()">发布</button>
+            </div>
+        </div>
+        <!-- 任务发布 -->
+        <div class="modal" id="postTaskModal">
+            <div class="modal-content">
+                <span class="modal-close" onclick="closeModal('postTaskModal')">&times;</span>
+                <h3>发布任务</h3>
+                <div class="form-group"><label>标题 <span class="required">*</span></label><input type="text" id="taskTitle" value="帮忙取快递 (F座)"></div>
+                <div class="form-group"><label>图片</label><div class="image-upload-area" onclick="triggerFileUpload('taskImages')"><i class="fas fa-cloud-upload-alt"></i> 点击上传</div><input type="file" id="taskImages" accept="image/*" multiple style="display:none;" onchange="previewImages('taskImages', 'taskPreview')"><div class="image-preview" id="taskPreview"></div></div>
+                <div class="form-group"><label>描述</label><textarea id="taskDesc" rows="2">快递在F座一楼快递柜，取后送到A座101。</textarea></div>
+                <div class="form-group"><label>悬赏 (MUST币) <span class="required">*</span></label><input type="number" id="taskReward" value="5" min="0"></div>
+                <div class="form-group"><label>截止时间</label><input type="datetime-local" id="taskDeadline"></div>
+                <div class="form-group"><label>地点</label><input type="text" id="taskLocation" value="F座"></div>
+                <button class="btn-primary" onclick="publishTask()">发布</button>
+            </div>
+        </div>
+
+        <!-- 商品详情 -->
+        <div class="modal" id="itemDetailModal">
+            <div class="modal-content">
+                <span class="modal-close" onclick="closeModal('itemDetailModal')">&times;</span>
+                <h3 id="itemDetailTitle"></h3>
+                <img id="itemDetailImg" src="" style="width:100%; border-radius:16px;">
+                <p><strong>价格：</strong><span id="itemDetailPrice"></span></p>
+                <p><strong>新旧：</strong><span id="itemDetailCondition"></span></p>
+                <p><strong>卖家：</strong><span id="itemDetailSeller"></span> <span id="itemDetailRating" class="reputation-badge"></span></p>
+                <p><strong>描述：</strong><span id="itemDetailDesc"></span></p>
+                <button class="btn-primary" onclick="openChat('item', document.getElementById('itemDetailTitle').innerText)">💬 联系卖家</button>
+            </div>
+        </div>
+        <!-- 技能详情 -->
+        <div class="modal" id="skillDetailModal">
+            <div class="modal-content">
+                <span class="modal-close" onclick="closeModal('skillDetailModal')">&times;</span>
+                <h3 id="skillDetailTitle"></h3>
+                <img id="skillDetailImg" src="" style="width:100%; border-radius:16px;">
+                <p><strong>提供者：</strong><span id="skillDetailProvider"></span> <span id="skillDetailRating" class="reputation-badge"></span></p>
+                <p><strong>价格：</strong><span id="skillDetailPrice"></span></p>
+                <p><strong>描述：</strong><span id="skillDetailDesc"></span></p>
+                <button class="btn-primary" onclick="openChat('skill', document.getElementById('skillDetailTitle').innerText)">💬 联系提供者</button>
+                <button class="btn-outline" onclick="showModal('bookingModal')" style="margin-left:1rem;">📅 预约</button>
+            </div>
+        </div>
+        <!-- 项目详情 -->
+        <div class="modal" id="projectDetailModal">
+            <div class="modal-content">
+                <span class="modal-close" onclick="closeModal('projectDetailModal')">&times;</span>
+                <h3 id="projectDetailTitle"></h3>
+                <img id="projectDetailImg" src="" style="width:100%; border-radius:16px;">
+                <p><strong>发起人：</strong><span id="projectDetailOwner"></span> <span id="projectDetailRating" class="reputation-badge"></span></p>
+                <p><strong>描述：</strong><span id="projectDetailDesc"></span></p>
+                <p><strong>招募：</strong><span id="projectDetailRoles"></span></p>
+                <button class="btn-primary" onclick="openChat('project', document.getElementById('projectDetailTitle').innerText)">💬 联系发起人</button>
+                <button class="btn-outline" onclick="showModal('applyProjectModal')" style="margin-left:1rem;">📝 申请加入</button>
+            </div>
+        </div>
+        <!-- 任务详情 -->
+        <div class="modal" id="taskDetailModal">
+            <div class="modal-content">
+                <span class="modal-close" onclick="closeModal('taskDetailModal')">&times;</span>
+                <h3 id="taskDetailTitle"></h3>
+                <img id="taskDetailImg" src="" style="width:100%; border-radius:16px;">
+                <p><strong>发布者：</strong><span id="taskDetailPublisher"></span> <span id="taskDetailRating" class="reputation-badge"></span></p>
+                <p><strong>悬赏：</strong><span id="taskDetailReward"></span></p>
+                <p><strong>描述：</strong><span id="taskDetailDesc"></span></p>
+                <button class="btn-primary" onclick="openChat('task', document.getElementById('taskDetailTitle').innerText)">💬 联系发布者</button>
+                <button class="btn-outline" onclick="claimTask()" style="margin-left:1rem;">📦 我来帮忙</button>
+            </div>
+        </div>
+
+        <!-- 预约模态框 -->
+        <div class="modal" id="bookingModal">
+            <div class="modal-content">
+                <span class="modal-close" onclick="closeModal('bookingModal')">&times;</span>
+                <h4 class="lang-zh">选择预约时间</h4>
+                <h4 class="lang-en">Select appointment time</h4>
+                <div class="form-group"><label>日期和时间</label><input type="datetime-local" id="bookingTime" style="padding:0.8rem;"></div>
+                <div class="form-group"><label>需求说明</label><textarea rows="3" id="bookingReq" placeholder="例如：需要讲解循环和函数"></textarea></div>
+                <button class="btn-primary" onclick="sendBooking()">发送预约</button>
+            </div>
+        </div>
+        <!-- 申请项目模态框 -->
+        <div class="modal" id="applyProjectModal">
+            <div class="modal-content">
+                <span class="modal-close" onclick="closeModal('applyProjectModal')">&times;</span>
+                <h4>申请加入项目</h4>
+                <div class="form-group"><label>申请理由</label><textarea rows="3" placeholder="简单介绍你的技能和为什么想加入..."></textarea></div>
+                <button class="btn-primary" onclick="alert('申请已发送');closeModal('applyProjectModal')">提交申请</button>
+            </div>
+        </div>
+        <!-- 编辑资料模态框 -->
+        <div class="modal" id="editProfileModal">
+            <div class="modal-content">
+                <span class="modal-close" onclick="closeModal('editProfileModal')">&times;</span>
+                <h3>编辑资料</h3>
+                <div class="form-group avatar-upload">
+                    <label>头像</label>
+                    <div class="image-upload-area" style="padding:1rem;" onclick="document.getElementById('editAvatarInput').click()"><i class="fas fa-camera"></i> 点击上传</div>
+                    <input type="file" id="editAvatarInput" accept="image/*" style="display:none;" onchange="previewEditAvatar(event)">
+                    <img id="editAvatarPreview" class="avatar-preview" src="https://via.placeholder.com/80" style="margin-top:1rem;">
+                </div>
+                <div class="form-group"><label>学院</label><select id="editCollege"><option>创新工程学院</option><option>商学院</option><option>博雅学院</option><option>酒店与旅游管理学院</option></select></div>
+                <div class="form-group"><label>入学年份</label><input type="number" id="editYear" min="2010" max="2030" value="2023"></div>
+                <button class="btn-primary" onclick="saveProfile()">保存</button>
+            </div>
+        </div>
+        <!-- 聊天模态框 -->
+        <div class="modal" id="chatModal">
+            <div class="modal-content" style="max-width:400px;">
+                <span class="modal-close" onclick="closeModal('chatModal')">&times;</span>
+                <h4 id="chatContextTitle">与 卖家 的对话</h4>
+                <div class="chat-window" id="chatMessages"><div class="chat-message">你好，有什么可以帮你的？</div></div>
+                <div class="chat-input"><input type="text" id="chatInput" placeholder="输入消息..."><button class="btn-primary" onclick="sendMessage()">发送</button></div>
+                <div class="chat-footer"><button onclick="alert('举报功能：已提交举报')"><i class="fas fa-flag"></i> 举报</button><button onclick="alert('拉黑功能：已拉黑该用户')"><i class="fas fa-ban"></i> 拉黑</button></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <div class="footer">© 2026 MustLoop · 澳门科技大学</div>
+</div>
+
+<script>
+    // ==================== 全局变量 ====================
+    let registeredUsers = []; // 存储已注册用户 { id, password, college, year, avatar? }
+    let currentUser = null;   // 当前登录用户，包含 posts 和 participations
+
+    // ==================== 登录/注册 ====================
+    function switchTab(tab) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        if (tab === 'login') {
+            document.querySelectorAll('.tab')[0].classList.add('active');
+            document.getElementById('loginTab').classList.add('active');
+        } else {
+            document.querySelectorAll('.tab')[1].classList.add('active');
+            document.getElementById('registerTab').classList.add('active');
+        }
+    }
+
+    function togglePassword(fieldId, icon) {
+        const field = document.getElementById(fieldId);
+        if (field.type === 'password') {
+            field.type = 'text';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        } else {
+            field.type = 'password';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        }
+    }
+
+    function validateRegId() {
+        const id = document.getElementById('regId').value;
+        const errorDiv = document.getElementById('regIdError');
+        if (!/^\d{10}$/.test(id)) {
+            errorDiv.style.display = 'block';
+            return false;
+        } else {
+            errorDiv.style.display = 'none';
+            return true;
+        }
+    }
+
+    function doRegister() {
+        const id = document.getElementById('regId').value;
+        const pwd = document.getElementById('regPassword').value;
+        const confirm = document.getElementById('regConfirmPassword').value;
+        const college = document.getElementById('regCollege').value;
+        const year = document.getElementById('regYear').value;
+
+        if (!id || !pwd || !confirm || !college || !year) {
+            alert('请填写所有必填项');
+            return;
+        }
+        if (!/^\d{10}$/.test(id)) {
+            alert('学号必须为10位数字');
+            return;
+        }
+        if (pwd !== confirm) {
+            alert('两次密码不一致');
+            return;
+        }
+        // 检查是否已注册
+        if (registeredUsers.find(u => u.id === id)) {
+            alert('该学号已注册，请直接登录');
+            return;
+        }
+
+        // 保存用户
+        const newUser = { id, password: pwd, college, year, avatar: 'https://via.placeholder.com/80' };
+        registeredUsers.push(newUser);
+        // 自动登录，赋予默认发布和参与数据
+        currentUser = {
+            ...newUser,
+            name: '用户' + id,
+            posts: [
+                { type: 'item', id: 'p1', title: '经济学原理 (第8版)', price: '30 MOP', condition: '几乎全新', desc: '正版教材，无笔记，图书馆自取。', seller: '李明', rating: 4.8, img: 'https://via.placeholder.com/150' },
+                { type: 'skill', id: 'p2', title: 'Python入门辅导', provider: '王磊', rating: 4.9, price: '50 MUST币/小时', desc: '适合零基础，帮助完成课程作业。', img: 'https://via.placeholder.com/150' },
+                { type: 'project', id: 'p3', title: '智能垃圾分类', owner: '张明', rating: 4.8, roles: '招募: UI设计, 后端开发', desc: '开发垃圾分类小程序', img: 'https://via.placeholder.com/150' }
+            ],
+            participations: [
+                { type: 'task', id: 't1', title: '帮忙取快递 (F座)', publisher: '赵婷', rating: 4.6, reward: '5 MUST币', desc: '快递在F座一楼快递柜，取后送到A座101。', img: 'https://via.placeholder.com/150', status: '进行中' },
+                { type: 'skill', id: 'b1', title: 'Python辅导预约', provider: '王磊', rating: 4.9, time: '待确认', desc: '预约时间待定' }
+            ]
+        };
+        alert('注册成功，已自动登录');
+        document.getElementById('loginPage').style.display = 'none';
+        document.getElementById('mainApp').style.display = 'block';
+        updateProfileDisplay();
+        renderMyPosts();
+        renderMyParticipations();
+    }
+
+    function doLogin() {
+        const id = document.getElementById('loginId').value;
+        const pwd = document.getElementById('loginPassword').value;
+        const errorDiv = document.getElementById('loginError');
+
+        if (!id || !pwd) {
+            alert('请填写学号和密码');
+            return;
+        }
+        if (!/^\d{10}$/.test(id)) {
+            alert('学号必须为10位数字');
+            return;
+        }
+
+        const user = registeredUsers.find(u => u.id === id && u.password === pwd);
+        if (!user) {
+            errorDiv.style.display = 'block';
+            return;
+        }
+        errorDiv.style.display = 'none';
+
+        // 登录成功，赋予默认发布和参与数据
+        currentUser = {
+            ...user,
+            name: '用户' + id,
+            posts: [
+                { type: 'item', id: 'p1', title: '经济学原理 (第8版)', price: '30 MOP', condition: '几乎全新', desc: '正版教材，无笔记，图书馆自取。', seller: '李明', rating: 4.8, img: 'https://via.placeholder.com/150' },
+                { type: 'skill', id: 'p2', title: 'Python入门辅导', provider: '王磊', rating: 4.9, price: '50 MUST币/小时', desc: '适合零基础，帮助完成课程作业。', img: 'https://via.placeholder.com/150' },
+                { type: 'project', id: 'p3', title: '智能垃圾分类', owner: '张明', rating: 4.8, roles: '招募: UI设计, 后端开发', desc: '开发垃圾分类小程序', img: 'https://via.placeholder.com/150' }
+            ],
+            participations: [
+                { type: 'task', id: 't1', title: '帮忙取快递 (F座)', publisher: '赵婷', rating: 4.6, reward: '5 MUST币', desc: '快递在F座一楼快递柜，取后送到A座101。', img: 'https://via.placeholder.com/150', status: '进行中' },
+                { type: 'skill', id: 'b1', title: 'Python辅导预约', provider: '王磊', rating: 4.9, time: '待确认', desc: '预约时间待定' }
+            ]
+        };
+        document.getElementById('loginPage').style.display = 'none';
+        document.getElementById('mainApp').style.display = 'block';
+        updateProfileDisplay();
+        renderMyPosts();
+        renderMyParticipations();
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        currentUser = null;
+        document.getElementById('mainApp').style.display = 'none';
+        document.getElementById('loginPage').style.display = 'flex';
+        document.getElementById('loginId').value = '';
+        document.getElementById('loginPassword').value = '';
+        document.getElementById('loginError').style.display = 'none';
+    });
+
+    function updateProfileDisplay() {
+        if (!currentUser) return;
+        document.getElementById('profileName').innerText = currentUser.name + ' (' + currentUser.id + ')';
+        document.getElementById('profileCollege').innerText = currentUser.college + ' · ' + currentUser.year + '级';
+        document.getElementById('profileAvatar').src = currentUser.avatar;
+    }
+
+    // ==================== 页面切换 ====================
+    const pages = {
+        home: document.getElementById('homePage'),
+        market: document.getElementById('marketPage'),
+        skill: document.getElementById('skillPage'),
+        project: document.getElementById('projectPage'),
+        task: document.getElementById('taskPage'),
+        my: document.getElementById('myPage')
+    };
+    function showPage(pageId) {
+        Object.values(pages).forEach(p => p.classList.remove('active'));
+        pages[pageId].classList.add('active');
+    }
+    function showHome() { showPage('home'); }
+
+    // 导航绑定
+    document.querySelectorAll('.nav-home').forEach(el => el.addEventListener('click', (e) => { e.preventDefault(); showHome(); }));
+    document.querySelectorAll('.nav-market').forEach(el => el.addEventListener('click', (e) => { e.preventDefault(); showPage('market'); }));
+    document.querySelectorAll('.nav-skill').forEach(el => el.addEventListener('click', (e) => { e.preventDefault(); showPage('skill'); }));
+    document.querySelectorAll('.nav-project').forEach(el => el.addEventListener('click', (e) => { e.preventDefault(); showPage('project'); }));
+    document.querySelectorAll('.nav-task').forEach(el => el.addEventListener('click', (e) => { e.preventDefault(); showPage('task'); }));
+    document.querySelectorAll('.nav-my').forEach(el => el.addEventListener('click', (e) => { e.preventDefault(); showPage('my'); }));
+    document.getElementById('homeLogo').addEventListener('click', showHome);
+
+    // ==================== 模态框管理 ====================
+    function showModal(id) { document.getElementById(id).classList.add('active'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+    document.querySelectorAll('.modal-close').forEach(btn => {
+        btn.addEventListener('click', function() { this.closest('.modal').classList.remove('active'); });
+    });
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('active'); });
+    });
+
+    // ==================== 图片上传预览 ====================
+    function triggerFileUpload(id) { document.getElementById(id).click(); }
+    function previewImages(inputId, previewId) {
+        const input = document.getElementById(inputId);
+        const preview = document.getElementById(previewId);
+        preview.innerHTML = '';
+        if (input.files) {
+            for (let file of input.files) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    preview.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    }
+    function previewEditAvatar(event) {
+        const reader = new FileReader();
+        reader.onload = function() { document.getElementById('editAvatarPreview').src = reader.result; };
+        reader.readAsDataURL(event.target.files[0]);
+    }
+
+    // ==================== 发布功能（模拟） ====================
+    function publishItem() {
+        const title = document.getElementById('itemTitle').value;
+        const price = parseFloat(document.getElementById('itemPrice').value);
+        if (!title) { alert('标题不能为空'); return; }
+        if (price < 0) { alert('价格不能为负数'); return; }
+        alert('商品已发布');
+        closeModal('postItemModal');
+    }
+    function publishSkill() {
+        const name = document.getElementById('skillName').value;
+        const rate = parseFloat(document.getElementById('skillRateValue').value);
+        if (!name) { alert('技能名称不能为空'); return; }
+        if (rate < 0) { alert('金额不能为负数'); return; }
+        alert('技能已发布');
+        closeModal('postSkillModal');
+    }
+    function publishProject() {
+        const name = document.getElementById('projectName').value;
+        if (!name) { alert('项目名称不能为空'); return; }
+        alert('项目已发布');
+        closeModal('postProjectModal');
+    }
+    function publishTask() {
+        const title = document.getElementById('taskTitle').value;
+        const reward = parseFloat(document.getElementById('taskReward').value);
+        if (!title) { alert('任务标题不能为空'); return; }
+        if (reward < 0) { alert('悬赏金额不能为负数'); return; }
+        alert('任务已发布');
+        closeModal('postTaskModal');
+    }
+
+    // ==================== 详情展示（从卡片点击） ====================
+    function showItemDetail(title, seller, rating, price, condition, desc, img) {
+        document.getElementById('itemDetailTitle').innerText = title;
+        document.getElementById('itemDetailPrice').innerText = price;
+        document.getElementById('itemDetailCondition').innerText = condition;
+        document.getElementById('itemDetailSeller').innerText = seller;
+        document.getElementById('itemDetailRating').innerText = '★' + rating;
+        document.getElementById('itemDetailDesc').innerText = desc;
+        document.getElementById('itemDetailImg').src = img;
+        showModal('itemDetailModal');
+    }
+    function showSkillDetail(title, provider, rating, price, desc, img) {
+        document.getElementById('skillDetailTitle').innerText = title;
+        document.getElementById('skillDetailProvider').innerText = provider;
+        document.getElementById('skillDetailRating').innerText = '★' + rating;
+        document.getElementById('skillDetailPrice').innerText = price;
+        document.getElementById('skillDetailDesc').innerText = desc;
+        document.getElementById('skillDetailImg').src = img;
+        showModal('skillDetailModal');
+    }
+    function showProjectDetail(title, owner, rating, roles, desc, img) {
+        document.getElementById('projectDetailTitle').innerText = title;
+        document.getElementById('projectDetailOwner').innerText = owner;
+        document.getElementById('projectDetailRating').innerText = '★' + rating;
+        document.getElementById('projectDetailRoles').innerText = roles;
+        document.getElementById('projectDetailDesc').innerText = desc;
+        document.getElementById('projectDetailImg').src = img;
+        showModal('projectDetailModal');
+    }
+    function showTaskDetail(title, publisher, rating, reward, desc, img) {
+        document.getElementById('taskDetailTitle').innerText = title;
+        document.getElementById('taskDetailPublisher').innerText = publisher;
+        document.getElementById('taskDetailRating').innerText = '★' + rating;
+        document.getElementById('taskDetailReward').innerText = reward;
+        document.getElementById('taskDetailDesc').innerText = desc;
+        document.getElementById('taskDetailImg').src = img;
+        showModal('taskDetailModal');
+    }
+
+    // ==================== 我的发布和参与功能 ====================
+    function renderMyPosts() {
+        const container = document.getElementById('myPostsContainer');
+        if (!container) return;
+        if (!currentUser || !currentUser.posts.length) {
+            container.innerHTML = '<p class="lang-zh">暂无发布</p><p class="lang-en">No posts yet</p>';
+            return;
+        }
+        let html = '';
+        currentUser.posts.forEach((post, index) => {
+            if (post.type === 'item') {
+                html += `<div class="my-item">
+                    <span><i class="fas fa-box"></i> ${post.title} - ${post.price}</span>
+                    <div class="actions">
+                        <button class="btn-outline" onclick="viewPost('item', ${index})">查看</button>
+                        <button class="btn-outline" onclick="editPost('item', ${index})">编辑</button>
+                        <button class="btn-outline" onclick="deletePost('item', ${index})">下架</button>
+                    </div>
+                </div>`;
+            } else if (post.type === 'skill') {
+                html += `<div class="my-item">
+                    <span><i class="fas fa-graduation-cap"></i> ${post.title} - ${post.price}</span>
+                    <div class="actions">
+                        <button class="btn-outline" onclick="viewPost('skill', ${index})">查看</button>
+                        <button class="btn-outline" onclick="editPost('skill', ${index})">编辑</button>
+                        <button class="btn-outline" onclick="deletePost('skill', ${index})">下架</button>
+                    </div>
+                </div>`;
+            } else if (post.type === 'project') {
+                html += `<div class="my-item">
+                    <span><i class="fas fa-rocket"></i> ${post.title}</span>
+                    <div class="actions">
+                        <button class="btn-outline" onclick="viewPost('project', ${index})">查看</button>
+                        <button class="btn-outline" onclick="editPost('project', ${index})">编辑</button>
+                        <button class="btn-outline" onclick="deletePost('project', ${index})">下架</button>
+                    </div>
+                </div>`;
+            }
+        });
+        container.innerHTML = html;
+    }
+
+    function viewPost(type, index) {
+        const post = currentUser.posts[index];
+        if (type === 'item') {
+            showItemDetail(post.title, post.seller, post.rating, post.price, post.condition, post.desc, post.img);
+        } else if (type === 'skill') {
+            showSkillDetail(post.title, post.provider, post.rating, post.price, post.desc, post.img);
+        } else if (type === 'project') {
+            showProjectDetail(post.title, post.owner, post.rating, post.roles, post.desc, post.img);
+        }
+    }
+
+    function editPost(type, index) {
+        // 模拟编辑：打开对应发布模态框（可进一步填充数据，此处简化）
+        if (type === 'item') showModal('postItemModal');
+        else if (type === 'skill') showModal('postSkillModal');
+        else if (type === 'project') showModal('postProjectModal');
+    }
+
+    function deletePost(type, index) {
+        if (confirm('确定下架该发布吗？')) {
+            currentUser.posts.splice(index, 1);
+            renderMyPosts();
+        }
+    }
+
+    function renderMyParticipations() {
+        const container = document.getElementById('myParticipationsContainer');
+        if (!container) return;
+        if (!currentUser || !currentUser.participations.length) {
+            container.innerHTML = '<p class="lang-zh">暂无参与</p><p class="lang-en">No participations yet</p>';
+            return;
+        }
+        let html = '';
+        currentUser.participations.forEach((part, index) => {
+            if (part.type === 'task') {
+                html += `<div class="my-item">
+                    <span><i class="fas fa-tasks"></i> ${part.title} - ${part.status}</span>
+                    <div class="actions">
+                        <button class="btn-outline" onclick="viewParticipation('task', ${index})">查看</button>
+                        <button class="btn-primary" onclick="contactParticipation(${index})">联系发布者</button>
+                        <button class="btn-outline" onclick="completeParticipation(${index})">完成</button>
+                    </div>
+                </div>`;
+            } else if (part.type === 'skill') {
+                html += `<div class="my-item">
+                    <span><i class="fas fa-calendar-check"></i> ${part.title} - ${part.time}</span>
+                    <div class="actions">
+                        <button class="btn-outline" onclick="viewParticipation('skill', ${index})">查看</button>
+                        <button class="btn-primary" onclick="contactParticipation(${index})">联系提供者</button>
+                        <button class="btn-outline" onclick="completeParticipation(${index})">完成</button>
+                    </div>
+                </div>`;
+            }
+        });
+        container.innerHTML = html;
+    }
+
+    function viewParticipation(type, index) {
+        const part = currentUser.participations[index];
+        if (type === 'task') {
+            showTaskDetail(part.title, part.publisher, part.rating, part.reward, part.desc, part.img);
+        } else if (type === 'skill') {
+            showSkillDetail(part.title, part.provider, part.rating, '待确认', part.desc, 'https://via.placeholder.com/150');
+        }
+    }
+
+    function contactParticipation(index) {
+        const part = currentUser.participations[index];
+        openChat(part.type, part.title);
+    }
+
+    function completeParticipation(index) {
+        if (confirm('确认完成该任务/预约？')) {
+            currentUser.participations.splice(index, 1);
+            renderMyParticipations();
+        }
+    }
+
+    // ==================== 聊天功能 ====================
+    function openChat(context, itemName) {
+        const chatTitle = document.getElementById('chatContextTitle');
+        chatTitle.innerText = `与 ${itemName} 的对话`;
+        document.getElementById('chatMessages').innerHTML = '<div class="chat-message">你好，有什么可以帮你的？</div>';
+        showModal('chatModal');
+    }
+    function sendMessage() {
+        const input = document.getElementById('chatInput');
+        const msg = input.value.trim();
+        if (!msg) return;
+        const chatBox = document.getElementById('chatMessages');
+        const newMsg = document.createElement('div');
+        newMsg.className = 'chat-message own';
+        newMsg.innerText = msg;
+        chatBox.appendChild(newMsg);
+        input.value = '';
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // ==================== 预约/接单 ====================
+    function claimTask() {
+        alert('您已接单！可以在“我的-我参与的”中查看');
+        closeModal('taskDetailModal');
+    }
+    function sendBooking() {
+        const time = document.getElementById('bookingTime').value;
+        if (!time) { alert('请选择时间'); return; }
+        alert('预约请求已发送');
+        closeModal('bookingModal');
+    }
+
+    // ==================== 编辑资料保存 ====================
+    function saveProfile() {
+        const college = document.getElementById('editCollege').value;
+        const year = document.getElementById('editYear').value;
+        currentUser.college = college;
+        currentUser.year = year;
+        const newAvatar = document.getElementById('editAvatarPreview').src;
+        if (newAvatar && newAvatar !== currentUser.avatar) currentUser.avatar = newAvatar;
+        updateProfileDisplay();
+        closeModal('editProfileModal');
+        alert('资料已更新');
+    }
+
+    // ==================== 语言切换 ====================
+    const langToggle = document.getElementById('langToggle');
+    const body = document.body;
+    langToggle.addEventListener('click', () => {
+        const current = body.getAttribute('data-lang');
+        body.setAttribute('data-lang', current === 'zh' ? 'en' : 'zh');
+    });
+
+    // ==================== 初始化一个测试用户 ====================
+    registeredUsers.push({ id: '1230009568', password: '123456', college: '创新工程学院', year: '2023', avatar: 'https://via.placeholder.com/80' });
+
+    // 页面加载完成后默认显示登录页
+    document.getElementById('loginPage').style.display = 'flex';
+    document.getElementById('mainApp').style.display = 'none';
+</script>
+</body>
+</html>
