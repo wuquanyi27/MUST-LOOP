@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5">
+    <title>MustLoop · 校园可持续协作平台</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2a9d8f;
+            --primary-dark: #1f7a6f;
+            --primary-light: #e8f5f3;
+            --bg: #f4f7fb;
+            --card: #ffffff;
+            --text: #1e2b3c;
+            --text-secondary: #4f6f8f;
+            --text-muted: #7f8fa4;
+            --border: #dbe4ed;
+            --border-light: #ecf1f6;
+            --shadow-sm: 0 2px 8px rgba(0, 20, 50, 0.04);
+            --shadow: 0 8px 24px rgba(0, 20, 50, 0.07);
+            --shadow-lg: 0 20px 48px rgba(0, 0, 0, 0.12);
+            --shadow-xl: 0 30px 60px rgba(0, 30, 60, 0.15);
+            --radius-sm: 12px;
+            --radius: 20px;
+            --radius-lg: 28px;
+            --radius-xl: 40px;
+            --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            --font-xs: 0.78rem;
+            --font-sm: 0.88rem;
+            --font-md: 0.95rem;
+            --font-lg: 1.1rem;
+            --font-xl: 1.35rem;
+            --font-2xl: 1.8rem;
+            --font-3xl: 2.4rem;
+            --gold: #f0a500;
+            --gold-bg: #fff8e6;
+            --red: #e74c3c;
+            --red-bg: #fdecea;
+            --green: #27ae60;
+            --green-bg: #eafaf1;
+            --blue: #3498db;
+            --blue-bg: #eaf2fb;
+            --orange: #e67e22;
+            --orange-bg: #fef5ec;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 1rem;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        /* ========== Toast 通知 ========== */
+        .toast-container {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            pointer-events: none;
+        }
+        .toast {
+            padding: 0.9rem 1.3rem;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            font-size: var(--font-sm);
+            box-shadow: var(--shadow-lg);
+            animation: slideInRight 0.35s ease-out, fadeOut 0.4s ease-in forwards;
+            animation-delay: 0s, 2.4s;
+            pointer-events: auto;
+            max-width: 400px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            backdrop-filter: blur(10px);
+        }
+        .toast-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .toast-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .toast-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        @keyframes slideInRight {
+            from { transform: translateX(120%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes fadeOut {
+            to { opacity: 0; transform: translateY(-8px); }
+        }
+
+        /* ========== 登录页 ========== */
+        .login-page {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 90vh;
+            padding: 1rem;
+        }
+        .login-card {
+            background: var(--card);
+            border-radius: var(--radius-xl);
+            padding: 2.5rem 2.2rem;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--border-light);
+        }
+        .login-card .logo {
+            font-size: 2.6rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 0.3rem;
+            letter-spacing: -1px;
+            color: #0f3b5e;
+        }
+        .login-card .logo span { color: var(--primary); }
+        .login-card .subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: var(--font-sm);
+            margin-bottom: 1.8rem;
+        }
+        .tab-bar {
+            display: flex;
+            gap: 0;
+            margin-bottom: 1.8rem;
+            background: #f0f3f7;
+            border-radius: 40px;
+            padding: 4px;
+        }
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 0.65rem 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--text-muted);
+            border-radius: 40px;
+            font-size: var(--font-sm);
+            transition: var(--transition);
+            user-select: none;
+        }
+        .tab.active { background: white; color: var(--primary); box-shadow: var(--shadow-sm); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeInUp 0.35s ease-out; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        .form-group { margin-bottom: 1.2rem; position: relative; }
+        .form-group label { font-weight: 600; display: block; margin-bottom: 0.3rem; font-size: var(--font-sm); color: var(--text); }
+        .form-group label .required { color: var(--red); margin-left: 1px; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 0.75rem 1rem; border: 1.5px solid var(--border); border-radius: 30px;
+            font-size: var(--font-md); transition: var(--transition); background: #fafbfc; outline: none; color: var(--text);
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: var(--primary); box-shadow: 0 0 0 3px rgba(42,157,143,0.08); background: white;
+        }
+        .form-group textarea { border-radius: 16px; resize: vertical; }
+        .password-wrapper { position: relative; }
+        .password-wrapper input { padding-right: 2.6rem; }
+        .password-wrapper i {
+            position: absolute; right: 1rem; top: 60%; transform: translateY(-50%);
+            cursor: pointer; color: var(--text-muted); font-size: 1.1rem; z-index: 10; transition: var(--transition);
+        }
+        .password-wrapper i:hover { color: var(--primary); }
+        .btn-primary {
+            background: var(--primary); border: none; padding: 0.85rem 1.8rem; border-radius: 60px;
+            font-weight: 600; font-size: var(--font-md); color: white; cursor: pointer; width: 100%;
+            transition: var(--transition); letter-spacing: 0.2px; display: inline-flex; align-items: center;
+            justify-content: center; gap: 0.4rem; white-space: nowrap;
+        }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(42,157,143,0.3); }
+        .btn-primary:active { transform: scale(0.97); }
+        .btn-primary-sm { padding: 0.45rem 1rem; font-size: var(--font-xs); width: auto; border-radius: 30px; }
+        .btn-outline {
+            background: transparent; border: 1.5px solid #0f3b5e; padding: 0.45rem 1.1rem; border-radius: 40px;
+            font-weight: 600; cursor: pointer; transition: var(--transition); font-size: var(--font-xs);
+            color: #0f3b5e; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;
+        }
+        .btn-outline:hover { background: #e7f0f9; border-color: var(--primary); color: var(--primary); }
+        .btn-outline-sm { padding: 0.3rem 0.7rem; font-size: 0.7rem; border-radius: 20px; }
+        .btn-accept {
+            background: var(--green-bg); border: 1.5px solid var(--green); color: var(--green);
+            padding: 0.35rem 0.8rem; border-radius: 30px; font-weight: 600; cursor: pointer; font-size: var(--font-xs);
+            transition: var(--transition); white-space: nowrap;
+        }
+        .btn-accept:hover { background: var(--green); color: white; }
+        .btn-reject {
+            background: var(--red-bg); border: 1.5px solid var(--red); color: var(--red);
+            padding: 0.35rem 0.8rem; border-radius: 30px; font-weight: 600; cursor: pointer; font-size: var(--font-xs);
+            transition: var(--transition); white-space: nowrap;
+        }
+        .btn-reject:hover { background: var(--red); color: white; }
+        .error-message { color: var(--red); font-size: 0.75rem; margin-top: 0.2rem; display: none; font-weight: 500; }
+
+        /* ========== 主应用 ========== */
+        .main-app { display: none; }
+        .navbar {
+            display: flex; justify-content: space-between; align-items: center; background: var(--card);
+            padding: 0.7rem 1.8rem; border-radius: 60px; box-shadow: var(--shadow); margin-bottom: 1.8rem;
+            flex-wrap: wrap; gap: 0.6rem; position: sticky; top: 0.8rem; z-index: 1000;
+            border: 1px solid var(--border-light); backdrop-filter: blur(10px);
+        }
+        .logo { font-weight: 700; font-size: var(--font-2xl); letter-spacing: -0.5px; color: #0f3b5e; cursor: pointer; transition: var(--transition); user-select: none; }
+        .logo span { color: var(--primary); }
+        .logo:hover { opacity: 0.85; }
+        .nav-links { display: flex; gap: 1.2rem; align-items: center; flex-wrap: wrap; }
+        .nav-links a {
+            text-decoration: none; color: #2c3e50; font-weight: 500; transition: var(--transition); cursor: pointer;
+            font-size: var(--font-sm); padding: 0.35rem 0.6rem; border-radius: 20px; white-space: nowrap;
+        }
+        .nav-links a:hover { color: var(--primary); background: var(--primary-light); }
+        .nav-links a.nav-active { color: var(--primary); background: var(--primary-light); font-weight: 600; }
+        .lang-toggle {
+            background: #eef2f6; border: none; padding: 0.4rem 1rem; border-radius: 40px; font-weight: 500;
+            cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: var(--font-sm); transition: var(--transition);
+        }
+        .lang-toggle:hover { background: #dde4ed; }
+        .btn-logout {
+            background: #dc3545; color: white !important; padding: 0.45rem 1.3rem; border-radius: 40px;
+            font-weight: 600; display: inline-flex; align-items: center; gap: 0.3rem; font-size: var(--font-sm);
+            transition: var(--transition); text-decoration: none !important;
+        }
+        .btn-logout:hover { background: #c0392b; transform: translateY(-1px); }
+
+        /* ========== 页面 ========== */
+        .page { display: none; animation: fadeInUp 0.4s ease-out; }
+        .page.active { display: block; }
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.3rem; margin: 1.5rem 0; }
+        .item-card {
+            background: var(--card); border-radius: var(--radius-lg); padding: 1.3rem;
+            box-shadow: var(--shadow-sm); border: 1px solid var(--border-light); transition: var(--transition);
+            cursor: pointer; position: relative; overflow: hidden;
+        }
+        .item-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); border-color: var(--primary); }
+        .item-card .card-img-wrapper {
+            position: relative; border-radius: var(--radius); overflow: hidden; margin-bottom: 0.8rem;
+            aspect-ratio: 4/3; background: #f0f4f8;
+        }
+        .item-card .card-img-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: var(--transition); }
+        .item-card:hover .card-img-wrapper img { transform: scale(1.04); }
+        .item-card .card-badge {
+            position: absolute; top: 0.6rem; left: 0.6rem; background: rgba(0,0,0,0.65); color: white;
+            padding: 0.25rem 0.6rem; border-radius: 20px; font-size: 0.7rem; font-weight: 600; backdrop-filter: blur(4px);
+        }
+        .item-card .title {
+            font-weight: 600; font-size: var(--font-lg); margin: 0.4rem 0; color: var(--text);
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+        }
+        .item-card .meta { color: var(--text-secondary); font-size: var(--font-sm); display: flex; gap: 0.8rem; margin: 0.4rem 0; flex-wrap: wrap; }
+        .item-card .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 0.6rem; gap: 0.5rem; }
+        .reputation-badge {
+            display: inline-flex; align-items: center; gap: 3px; background: var(--gold-bg); color: #7a4d00;
+            padding: 0.2rem 0.7rem; border-radius: 40px; font-size: 0.75rem; font-weight: 600; white-space: nowrap;
+        }
+        .reputation-badge i { font-size: 0.65rem; color: var(--gold); }
+        .status-badge {
+            display: inline-flex; align-items: center; gap: 3px; padding: 0.2rem 0.7rem; border-radius: 40px;
+            font-size: 0.7rem; font-weight: 600; white-space: nowrap;
+        }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-accepted { background: #d4edda; color: #155724; }
+        .status-completed { background: #d1ecf1; color: #0c5460; }
+
+        .btn-back {
+            background: transparent; border: 1px solid #b0c4d9; padding: 0.5rem 1.2rem; border-radius: 40px;
+            cursor: pointer; margin-bottom: 1.2rem; display: inline-flex; align-items: center; gap: 8px;
+            font-size: var(--font-sm); transition: var(--transition); color: var(--text-secondary);
+        }
+        .btn-back:hover { background: #eef2f6; border-color: var(--primary); color: var(--primary); }
+
+        /* ========== 模态框 ========== */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 2000;
+            backdrop-filter: blur(2px); padding: 1rem;
+        }
+        .modal.active { display: flex; animation: fadeIn 0.25s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .modal-content {
+            background: white; border-radius: var(--radius-lg); max-width: 520px; width: 100%;
+            max-height: 85vh; overflow-y: auto; padding: 1.8rem; box-shadow: var(--shadow-xl);
+            animation: scaleIn 0.3s ease-out; position: relative;
+        }
+        @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal-content.modal-wide { max-width: 640px; }
+        .modal-close {
+            position: absolute; top: 1rem; right: 1.2rem; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);
+            transition: var(--transition); z-index: 10; width: 36px; height: 36px; display: flex;
+            align-items: center; justify-content: center; border-radius: 50%; background: #f5f6f8;
+        }
+        .modal-close:hover { background: #e8eaed; color: var(--red); }
+        .image-upload-area {
+            border: 2px dashed #b0c4d9; border-radius: var(--radius); padding: 1.3rem; text-align: center;
+            color: var(--text-secondary); cursor: pointer; transition: var(--transition); font-size: var(--font-sm);
+        }
+        .image-upload-area:hover { background: #f0f5fa; border-color: var(--primary); }
+        .image-preview { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
+        .image-preview img { width: 56px; height: 56px; object-fit: cover; border-radius: 10px; border: 1px solid #ddd; }
+        .avatar-preview { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary); }
+
+        /* ========== 我的页面 ========== */
+        .my-section {
+            background: white; border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1.3rem;
+            border: 1px solid var(--border-light); box-shadow: var(--shadow-sm);
+        }
+        .my-section h3 { margin-bottom: 1rem; color: #0f3b5e; font-size: var(--font-lg); display: flex; align-items: center; gap: 0.5rem; }
+        .my-item {
+            display: flex; justify-content: space-between; align-items: center; padding: 0.8rem 0;
+            border-bottom: 1px solid var(--border-light); gap: 0.8rem; flex-wrap: wrap; transition: var(--transition);
+        }
+        .my-item:hover { background: #fafcfd; margin: 0 -0.5rem; padding-left: 0.5rem; padding-right: 0.5rem; border-radius: 10px; }
+        .my-item:last-child { border-bottom: none; }
+        .my-item .item-info { flex: 1; min-width: 180px; }
+        .my-item .item-info .item-title { font-weight: 600; font-size: var(--font-md); }
+        .my-item .item-info .item-meta { font-size: var(--font-xs); color: var(--text-muted); }
+        .my-item .actions { display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; }
+        .participants-count {
+            display: inline-flex; align-items: center; gap: 3px; background: var(--blue-bg); color: var(--blue);
+            padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.7rem; font-weight: 600; cursor: pointer;
+            transition: var(--transition); white-space: nowrap;
+        }
+        .participants-count:hover { background: var(--blue); color: white; }
+        .participants-expand { display: none; background: #f9fafb; border-radius: var(--radius-sm); padding: 0.8rem 1rem; margin-top: 0.5rem; border: 1px solid var(--border-light); }
+        .participants-expand.show { display: block; animation: fadeInUp 0.3s ease-out; }
+        .participant-row {
+            display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0;
+            border-bottom: 1px dashed #eef1f5; gap: 0.5rem; flex-wrap: wrap; font-size: var(--font-sm);
+        }
+        .participant-row:last-child { border-bottom: none; }
+        .participant-row .participant-info { display: flex; align-items: center; gap: 0.6rem; }
+        .participant-row .participant-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid #e0e5ea; }
+        .empty-state { text-align: center; padding: 2rem 1rem; color: var(--text-muted); font-size: var(--font-sm); }
+        .empty-state i { font-size: 2.5rem; margin-bottom: 0.8rem; display: block; color: #d0d8e0; }
+
+        /* ========== 星级评价组件 ========== */
+        .star-rating { display: flex; gap: 0.3rem; font-size: 2rem; cursor: pointer; }
+        .star-rating i { color: #ddd; transition: var(--transition); }
+        .star-rating i.active { color: var(--gold); }
+        .star-rating-text { font-size: var(--font-sm); color: var(--text-muted); margin-top: 0.3rem; }
+
+        /* ========== 首页 Hero ========== */
+        .hero-section {
+            background: linear-gradient(135deg, #ffffff 0%, #f0f7f5 100%);
+            border-radius: var(--radius-xl); padding: 3rem 2rem; margin-bottom: 2rem;
+            border: 1px solid var(--border-light); position: relative; overflow: hidden;
+        }
+        .hero-section::after {
+            content: ''; position: absolute; top: -60px; right: -60px; width: 200px; height: 200px;
+            background: var(--primary-light); border-radius: 50%; opacity: 0.5; pointer-events: none;
+        }
+        .hero-section h1 { font-size: var(--font-3xl); color: #0f3b5e; position: relative; z-index: 1; line-height: 1.25; }
+        .hero-section p { font-size: var(--font-xl); margin: 1rem 0; color: var(--text-secondary); position: relative; z-index: 1; }
+        .hero-section .btn-primary { width: auto; display: inline-flex; position: relative; z-index: 1; }
+
+        /* ========== 聊天 ========== */
+        .chat-window {
+            background: #f0f4f9; border-radius: var(--radius); padding: 1rem; height: 260px; overflow-y: auto;
+            display: flex; flex-direction: column; gap: 0.6rem; margin: 1rem 0;
+        }
+        .chat-message { max-width: 72%; padding: 0.55rem 0.9rem; border-radius: 18px; background: white; align-self: flex-start; word-wrap: break-word; font-size: var(--font-sm); box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+        .chat-message.own { background: var(--primary); color: white; align-self: flex-end; }
+        .chat-input { display: flex; gap: 0.5rem; }
+        .chat-input input { flex: 1; padding: 0.65rem 1rem; border-radius: 30px; border: 1.5px solid var(--border); font-size: var(--font-sm); outline: none; }
+        .chat-input input:focus { border-color: var(--primary); }
+        .chat-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 0.4rem; gap: 0.5rem; }
+        .chat-footer button { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: var(--font-xs); padding: 0.3rem 0.6rem; border-radius: 16px; transition: var(--transition); }
+        .chat-footer button:hover { color: var(--primary); background: #f0f4f8; }
+
+        /* ========== 语言 ========== */
+        [data-lang="en"] .lang-zh { display: none; }
+        [data-lang="zh"] .lang-en { display: none; }
+
+        /* ========== 页脚 ========== */
+        .footer { text-align: center; color: #6b7c93; padding: 2rem 0 1rem; margin-top: 2.5rem; border-top: 1px solid #dae2ec; font-size: var(--font-sm); }
+
+        /* ========== 响应式 ========== */
+        @media (max-width: 768px) {
+            .navbar { padding: 0.6rem 1rem; border-radius: 30px; gap: 0.4rem; }
+            .nav-links { gap: 0.4rem; }
+            .nav-links a { font-size: 0.75rem; padding: 0.3rem 0.4rem; }
+            .hero-section { padding: 2rem 1.2rem; }
+            .hero-section h1 { font-size: 1.8rem; }
+            .hero-section p { font-size: 1rem; }
+            .card-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.9rem; }
+            .item-card { padding: 1rem; }
+            .modal-content { padding: 1.3rem; border-radius: var(--radius); }
+            .my-item { flex-direction: column; align-items: flex-start; }
+            .my-item .actions { width: 100%; justify-content: flex-end; }
+            .btn-logout { padding: 0.35rem 0.8rem; font-size: 0.7rem; }
+            .lang-toggle { font-size: 0.7rem; padding: 0.3rem 0.7rem; }
+        }
+        @media (max-width: 480px) {
+            body { padding: 0.4rem; }
+            .navbar { border-radius: 24px; padding: 0.5rem 0.8rem; top: 0.4rem; }
+            .logo { font-size: 1.3rem; }
+            .nav-links a { font-size: 0.68rem; padding: 0.2rem 0.3rem; }
+            .card-grid { grid-template-columns: 1fr; gap: 0.7rem; }
+        }
+    </style>
+</head>
+<body data-lang="zh">
+    <!-- Toast容器 -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <div class="container">
+        <!-- ========== 登录/注册页面 ========== -->
+        <div id="loginPage" class="login-page">
+            <div class="login-card">
+                <div class="logo">Must<span>Loop</span></div>
+                <p class="subtitle lang-zh">澳门科技大学 · 校园可持续协作平台</p>
+                <p class="subtitle lang-en">MUST · Campus Collaboration Platform</p>
+                <div class="tab-bar">
+                    <div class="tab active" onclick="switchTab('login')">
+                        <span class="lang-zh">登录</span><span class="lang-en">Login</span>
+                    </div>
+                    <div class="tab" onclick="switchTab('register')">
+                        <span class="lang-zh">注册</span><span class="lang-en">Register</span>
+                    </div>
+                </div>
+                <!-- 登录 -->
+                <div id="loginTab" class="tab-content active">
+                    <div class="form-group">
+                        <label><span class="lang-zh">学号</span><span class="lang-en">Student ID</span> <span class="required">*</span></label>
+                        <input type="text" id="loginId" placeholder="10位数字 / 10 digits" maxlength="10" pattern="\d{10}">
+                    </div>
+                    <div class="form-group password-wrapper">
+                        <label><span class="lang-zh">密码</span><span class="lang-en">Password</span> <span class="required">*</span></label>
+                        <input type="password" id="loginPassword" placeholder="••••••••">
+                        <i class="fas fa-eye-slash" onclick="togglePassword('loginPassword', this)"></i>
+                    </div>
+                    <button class="btn-primary" onclick="doLogin()">
+                        <span class="lang-zh">登录</span><span class="lang-en">Login</span>
+                    </button>
+                    <div id="loginError" style="color:#e74c3c; margin-top:0.5rem; display:none; font-weight:500;">
+                        <span class="lang-zh">学号或密码错误</span><span class="lang-en">Invalid ID or password</span>
+                    </div>
+                    <p style="text-align:center;margin-top:1rem;font-size:0.8rem;color:#7f8fa4;">
+                        <span class="lang-zh">测试账号：1230009568 / 密码：123456</span>
+                        <span class="lang-en">Demo: 1230009568 / 123456</span>
+                    </p>
+                </div>
+                <!-- 注册 -->
+                <div id="registerTab" class="tab-content">
+                    <div class="form-group">
+                        <label><span class="lang-zh">学号</span><span class="lang-en">Student ID</span> <span class="required">*</span></label>
+                        <input type="text" id="regId" placeholder="10位数字" maxlength="10" onblur="validateRegId()">
+                        <div class="error-message" id="regIdError"><span class="lang-zh">学号必须为10位数字</span><span class="lang-en">Must be 10 digits</span></div>
+                    </div>
+                    <div class="form-group password-wrapper">
+                        <label><span class="lang-zh">密码</span><span class="lang-en">Password</span> <span class="required">*</span></label>
+                        <input type="password" id="regPassword">
+                        <i class="fas fa-eye-slash" onclick="togglePassword('regPassword', this)"></i>
+                    </div>
+                    <div class="form-group password-wrapper">
+                        <label><span class="lang-zh">确认密码</span><span class="lang-en">Confirm</span> <span class="required">*</span></label>
+                        <input type="password" id="regConfirmPassword">
+                        <i class="fas fa-eye-slash" onclick="togglePassword('regConfirmPassword', this)"></i>
+                    </div>
+                    <div class="form-group">
+                        <label><span class="lang-zh">学院</span><span class="lang-en">College</span> <span class="required">*</span></label>
+                        <select id="regCollege">
+                            <option value="">-- <span class="lang-zh">请选择</span><span class="lang-en">Select</span> --</option>
+                            <option>创新工程学院</option>
+                            <option>商学院</option>
+                            <option>法学院</option>
+                            <option>博雅学院</option>
+                            <option>酒店与旅游管理学院</option>
+                            <option>其他</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><span class="lang-zh">入学年份</span><span class="lang-en">Enrollment Year</span> <span class="required">*</span></label>
+                        <input type="number" id="regYear" min="2010" max="2030" value="2023">
+                    </div>
+                    <button class="btn-primary" onclick="doRegister()">
+                        <span class="lang-zh">注册</span><span class="lang-en">Register</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== 主应用 ========== -->
+        <div id="mainApp" class="main-app">
+            <!-- 导航栏 -->
+            <nav class="navbar">
+                <div class="logo" id="homeLogo">Must<span>Loop</span></div>
+                <div class="nav-links">
+                    <a class="nav-home lang-zh nav-active">首页</a>
+                    <a class="nav-home lang-en nav-active">Home</a>
+                    <a class="nav-market lang-zh">市场</a>
+                    <a class="nav-market lang-en">Market</a>
+                    <a class="nav-skill lang-zh">技能</a>
+                    <a class="nav-skill lang-en">Skills</a>
+                    <a class="nav-project lang-zh">项目</a>
+                    <a class="nav-project lang-en">Projects</a>
+                    <a class="nav-task lang-zh">任务</a>
+                    <a class="nav-task lang-en">Tasks</a>
+                    <a class="nav-my lang-zh">我的</a>
+                    <a class="nav-my lang-en">My</a>
+                    <button class="lang-toggle" id="langToggle">
+                        <i class="fas fa-globe"></i>
+                        <span class="lang-zh">EN</span>
+                        <span class="lang-en">中文</span>
+                    </button>
+                    <a href="#" class="btn-logout" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span class="lang-zh">退出</span>
+                        <span class="lang-en">Logout</span>
+                    </a>
+                </div>
+            </nav>
+
+            <!-- 首页 -->
+            <div id="homePage" class="page active">
+                <div class="hero-section">
+                    <h1 class="lang-zh">让闲置流动，让才华相遇</h1>
+                    <h1 class="lang-en">Share, Connect & Thrive on Campus</h1>
+                    <p class="lang-zh">MustLoop 是澳科大专属的可持续协作平台——二手交易、技能交换、项目组队、日常互助，都在这里。</p>
+                    <p class="lang-en">The all-in-one platform for circular economy & collaboration at MUST.</p>
+                    <button class="btn-primary lang-zh" onclick="showPage('market')"><i class="fas fa-rocket"></i> 开始探索</button>
+                    <button class="btn-primary lang-en" onclick="showPage('market')"><i class="fas fa-rocket"></i> Explore Now</button>
+                </div>
+                <h2 class="lang-zh" style="margin-bottom:0.8rem;">✨ 核心功能</h2>
+                <h2 class="lang-en" style="margin-bottom:0.8rem;">✨ Core Features</h2>
+                <div class="card-grid">
+                    <div class="item-card" onclick="showPage('market')">
+                        <div class="card-img-wrapper" style="display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#e8f5f3,#d4efe9);">
+                            <i class="fas fa-exchange-alt" style="font-size:3rem;color:#2a9d8f;"></i>
+                        </div>
+                        <div class="title lang-zh">循环市场</div>
+                        <div class="title lang-en">Circular Market</div>
+                        <p class="lang-zh" style="font-size:0.85rem;color:#4f6f8f;">发布二手教材、电子产品，内置私信，交易互评。</p>
+                        <p class="lang-en" style="font-size:0.85rem;color:#4f6f8f;">Buy & sell used items with in-app chat & ratings.</p>
+                    </div>
+                    <div class="item-card" onclick="showPage('skill')">
+                        <div class="card-img-wrapper" style="display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#eaf2fb,#d4e4f7);">
+                            <i class="fas fa-graduation-cap" style="font-size:3rem;color:#3498db;"></i>
+                        </div>
+                        <div class="title lang-zh">技能银行</div>
+                        <div class="title lang-en">Skill Bank</div>
+                        <p class="lang-zh" style="font-size:0.85rem;color:#4f6f8f;">发布技能卡片，预约时段，赚取 MUST 币。</p>
+                        <p class="lang-en" style="font-size:0.85rem;color:#4f6f8f;">Offer skills, book sessions, earn MUST coins.</p>
+                    </div>
+                    <div class="item-card" onclick="showPage('project')">
+                        <div class="card-img-wrapper" style="display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#fef5ec,#fce4c8);">
+                            <i class="fas fa-rocket" style="font-size:3rem;color:#e67e22;"></i>
+                        </div>
+                        <div class="title lang-zh">项目孵化板</div>
+                        <div class="title lang-en">Project Board</div>
+                        <p class="lang-zh" style="font-size:0.85rem;color:#4f6f8f;">发布创业/研究项目，招募跨专业队友。</p>
+                        <p class="lang-en" style="font-size:0.85rem;color:#4f6f8f;">Post ideas, recruit cross-disciplinary teammates.</p>
+                    </div>
+                    <div class="item-card" onclick="showPage('task')">
+                        <div class="card-img-wrapper" style="display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#fdecea,#f9d6d5);">
+                            <i class="fas fa-tasks" style="font-size:3rem;color:#e74c3c;"></i>
+                        </div>
+                        <div class="title lang-zh">社区任务板</div>
+                        <div class="title lang-en">Task Board</div>
+                        <p class="lang-zh" style="font-size:0.85rem;color:#4f6f8f;">发布悬赏小任务，一键接单，MUST 币自动转移。</p>
+                        <p class="lang-en" style="font-size:0.85rem;color:#4f6f8f;">Post quick tasks, claim & earn rewards instantly.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 循环市场 -->
+            <div id="marketPage" class="page">
+                <button class="btn-back" onclick="showHome()"><i class="fas fa-arrow-left"></i> <span class="lang-zh">返回首页</span><span class="lang-en">Back</span></button>
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.8rem;">
+                    <h2><span class="lang-zh">🛒 循环市场</span><span class="lang-en">🛒 Circular Market</span></h2>
+                    <button class="btn-primary" onclick="showModal('postItemModal')" style="width:auto;"><i class="fas fa-plus"></i> <span class="lang-zh">发布商品</span><span class="lang-en">Post Item</span></button>
+                </div>
+                <div class="card-grid" id="marketCardGrid"></div>
+            </div>
+
+            <!-- 技能银行 -->
+            <div id="skillPage" class="page">
+                <button class="btn-back" onclick="showHome()"><i class="fas fa-arrow-left"></i> <span class="lang-zh">返回首页</span><span class="lang-en">Back</span></button>
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.8rem;">
+                    <h2><span class="lang-zh">🎓 技能银行</span><span class="lang-en">🎓 Skill Bank</span></h2>
+                    <button class="btn-primary" onclick="showModal('postSkillModal')" style="width:auto;"><i class="fas fa-plus"></i> <span class="lang-zh">发布技能</span><span class="lang-en">Post Skill</span></button>
+                </div>
+                <div class="card-grid" id="skillCardGrid"></div>
+            </div>
+
+            <!-- 项目孵化板 -->
+            <div id="projectPage" class="page">
+                <button class="btn-back" onclick="showHome()"><i class="fas fa-arrow-left"></i> <span class="lang-zh">返回首页</span><span class="lang-en">Back</span></button>
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.8rem;">
+                    <h2><span class="lang-zh">🚀 项目孵化板</span><span class="lang-en">🚀 Project Board</span></h2>
+                    <button class="btn-primary" onclick="showModal('postProjectModal')" style="width:auto;"><i class="fas fa-plus"></i> <span class="lang-zh">发起项目</span><span class="lang-en">Post Project</span></button>
+                </div>
+                <div class="card-grid" id="projectCardGrid"></div>
+            </div>
+
+            <!-- 任务板 -->
+            <div id="taskPage" class="page">
+                <button class="btn-back" onclick="showHome()"><i class="fas fa-arrow-left"></i> <span class="lang-zh">返回首页</span><span class="lang-en">Back</span></button>
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.8rem;">
+                    <h2><span class="lang-zh">📋 社区任务板</span><span class="lang-en">📋 Task Board</span></h2>
+                    <button class="btn-primary" onclick="showModal('postTaskModal')" style="width:auto;"><i class="fas fa-plus"></i> <span class="lang-zh">发布任务</span><span class="lang-en">Post Task</span></button>
+                </div>
+                <div class="card-grid" id="taskCardGrid"></div>
+            </div>
+
+            <!-- 我的页面 -->
+            <div id="myPage" class="page">
+                <button class="btn-back" onclick="showHome()"><i class="fas fa-arrow-left"></i> <span class="lang-zh">返回首页</span><span class="lang-en">Back</span></button>
+                <h2 class="lang-zh">👤 个人中心</h2>
+                <h2 class="lang-en">👤 My Profile</h2>
+                <div class="my-section" id="profileSection">
+                    <div style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;">
+                        <img id="profileAvatar" src="https://via.placeholder.com/80" class="avatar-preview">
+                        <div style="flex:1;min-width:180px;">
+                            <h3 id="profileName" style="margin:0;">李明 (1230009568)</h3>
+                            <p id="profileCollege" style="color:#4f6f8f;margin:0.2rem 0;">创新工程学院 · 2023级</p>
+                            <span class="reputation-badge"><i class="fas fa-star"></i> 4.92 (48次评价)</span>
+                        </div>
+                        <button class="btn-outline" onclick="showModal('editProfileModal')"><i class="fas fa-edit"></i> <span class="lang-zh">编辑资料</span><span class="lang-en">Edit Profile</span></button>
+                    </div>
+                </div>
+                <div class="my-section">
+                    <h3><i class="fas fa-bullhorn" style="color:#2a9d8f;"></i> <span class="lang-zh">我的发布</span><span class="lang-en">My Posts</span></h3>
+                    <div id="myPostsContainer"></div>
+                </div>
+                <div class="my-section">
+                    <h3><i class="fas fa-handshake" style="color:#3498db;"></i> <span class="lang-zh">我参与的</span><span class="lang-en">My Participations</span></h3>
+                    <div id="myParticipationsContainer"></div>
+                </div>
+            </div>
+
+            <!-- ========== 模态框区域 ========== -->
+            <!-- 发布商品 -->
+            <div class="modal" id="postItemModal">
+                <div class="modal-content"><span class="modal-close" onclick="closeModal('postItemModal')">&times;</span>
+                    <h3 class="lang-zh">发布商品</h3><h3 class="lang-en">Post Item</h3>
+                    <div class="form-group"><label>标题 <span class="required">*</span></label><input type="text" id="itemTitle" placeholder="例如：经济学原理 (第8版)"></div>
+                    <div class="form-group"><label>分类</label><select id="itemCategory"><option>教材</option><option>电子产品</option><option>家居</option><option>其他</option></select></div>
+                    <div class="form-group"><label>图片</label><div class="image-upload-area" onclick="triggerFileUpload('itemImages')"><i class="fas fa-cloud-upload-alt"></i> 点击上传</div><input type="file" id="itemImages" accept="image/*" multiple style="display:none;" onchange="previewImages('itemImages','itemPreview')"><div class="image-preview" id="itemPreview"></div></div>
+                    <div class="form-group"><label>新旧程度</label><select id="itemCondition"><option>全新</option><option>几乎全新</option><option>良好</option><option>轻微痕迹</option></select></div>
+                    <div class="form-group"><label>价格 (MOP) <span class="required">*</span></label><input type="number" id="itemPrice" min="0" placeholder="0 表示免费"></div>
+                    <div class="form-group"><label>描述</label><textarea id="itemDesc" rows="2" placeholder="描述商品详情..."></textarea></div>
+                    <div class="form-group"><label>交易地点</label><input type="text" id="itemLocation" placeholder="例如：图书馆"></div>
+                    <button class="btn-primary" onclick="publishItem()"><span class="lang-zh">发布商品</span><span class="lang-en">Publish Item</span></button>
+                </div>
+            </div>
+            <!-- 发布技能 -->
+            <div class="modal" id="postSkillModal">
+                <div class="modal-content"><span class="modal-close" onclick="closeModal('postSkillModal')">&times;</span>
+                    <h3 class="lang-zh">发布技能</h3><h3 class="lang-en">Post Skill</h3>
+                    <div class="form-group"><label>技能名称 <span class="required">*</span></label><input type="text" id="skillName" placeholder="例如：Python入门辅导"></div>
+                    <div class="form-group"><label>类别</label><select id="skillCategory"><option>编程</option><option>设计</option><option>语言</option><option>音乐</option><option>其他</option></select></div>
+                    <div class="form-group"><label>图片</label><div class="image-upload-area" onclick="triggerFileUpload('skillImages')"><i class="fas fa-cloud-upload-alt"></i> 点击上传</div><input type="file" id="skillImages" accept="image/*" multiple style="display:none;" onchange="previewImages('skillImages','skillPreview')"><div class="image-preview" id="skillPreview"></div></div>
+                    <div class="form-group"><label>描述</label><textarea id="skillDesc" rows="2" placeholder="描述你能提供的帮助..."></textarea></div>
+                    <div class="form-group"><label>收费标准</label><select id="skillRateType"><option>MUST币/小时</option><option>MOP/小时</option></select><input type="number" id="skillRateValue" min="0" placeholder="金额" style="margin-top:0.5rem;"></div>
+                    <div class="form-group"><label>可预约时间</label><input type="text" id="skillAvailable" placeholder="例如：周一至周五19-21点"></div>
+                    <button class="btn-primary" onclick="publishSkill()"><span class="lang-zh">发布技能</span><span class="lang-en">Publish Skill</span></button>
+                </div>
+            </div>
+            <!-- 发布项目 -->
+            <div class="modal" id="postProjectModal">
+                <div class="modal-content"><span class="modal-close" onclick="closeModal('postProjectModal')">&times;</span>
+                    <h3 class="lang-zh">发起项目</h3><h3 class="lang-en">Post Project</h3>
+                    <div class="form-group"><label>项目名称 <span class="required">*</span></label><input type="text" id="projectName" placeholder="例如：智能垃圾分类"></div>
+                    <div class="form-group"><label>类型</label><select id="projectType"><option>创业</option><option>研究</option><option>公益</option><option>学习</option></select></div>
+                    <div class="form-group"><label>图片</label><div class="image-upload-area" onclick="triggerFileUpload('projectImages')"><i class="fas fa-cloud-upload-alt"></i> 点击上传</div><input type="file" id="projectImages" accept="image/*" multiple style="display:none;" onchange="previewImages('projectImages','projectPreview')"><div class="image-preview" id="projectPreview"></div></div>
+                    <div class="form-group"><label>描述</label><textarea id="projectDesc" rows="2" placeholder="描述项目内容和目标..."></textarea></div>
+                    <div class="form-group"><label>招募角色</label><input type="text" id="projectRoles" placeholder="例如：UI设计, 后端开发"></div>
+                    <div class="form-group"><label>截止日期</label><input type="date" id="projectDeadline"></div>
+                    <button class="btn-primary" onclick="publishProject()"><span class="lang-zh">发布项目</span><span class="lang-en">Publish Project</span></button>
+                </div>
+            </div>
+            <!-- 发布任务 -->
+            <div class="modal" id="postTaskModal">
+                <div class="modal-content"><span class="modal-close" onclick="closeModal('postTaskModal')">&times;</span>
+                    <h3 class="lang-zh">发布任务</h3><h3 class="lang-en">Post Task</h3>
+                    <div class="form-group"><label>标题 <span class="required">*</span></label><input type="text" id="taskTitle" placeholder="例如：帮忙取快递 (F座)"></div>
+                    <div class="form-group"><label>图片</label><div class="image-upload-area" onclick="triggerFileUpload('taskImages')"><i class="fas fa-cloud-upload-alt"></i> 点击上传</div><input type="file" id="taskImages" accept="image/*" multiple style="display:none;" onchange="previewImages('taskImages','taskPreview')"><div class="image-preview" id="taskPreview"></div></div>
+                    <div class="form-group"><label>描述</label><textarea id="taskDesc" rows="2" placeholder="描述任务详情..."></textarea></div>
+                    <div class="form-group"><label>悬赏 (MUST币) <span class="required">*</span></label><input type="number" id="taskReward" value="5" min="1"></div>
+                    <div class="form-group"><label>截止时间</label><input type="datetime-local" id="taskDeadline"></div>
+                    <div class="form-group"><label>地点</label><input type="text" id="taskLocation" placeholder="例如：F座"></div>
+                    <button class="btn-primary" onclick="publishTask()"><span class="lang-zh">发布任务</span><span class="lang-en">Publish Task</span></button>
+                </div>
+            </div>
+
+            <!-- 商品详情 -->
+            <div class="modal" id="itemDetailModal">
+                <div class="modal-content"><span class="modal-close" onclick="closeModal('itemDetailModal')">&times;</span>
+                    <h3 id="itemDetailTitle"></h3>
+                    <img id="itemDetailImg" src="" style="width:100%;border-radius:16px;margin:0.8rem 0;">
+                    <p><strong>价格：</strong><span id="itemDetailPrice"></span></p>
+                    <p><strong>新旧：</strong><span id="itemDetailCondition"></span></p>
+                    <p><strong>卖家：</strong><span id="itemDetailSeller"></span> <span id="itemDetailRating" class="reputation-badge"></span></p>
+                    <p><strong>描述：</strong><span id="itemDetailDesc"></span></p>
+                    <button class="btn-primary" onclick="openChatForCurrent()"><i class="fas fa-comment"></i> <span class="lang-zh">联系卖家</span><span class="lang-en">Contact Seller</span></button>
+                </div>
+            </div>
+            <!-- 技能详情 -->
+            <div class="modal" id="skillDetailModal">
+                <div class="modal-content"><span class="modal-close" onclick="closeModal('skillDetailModal')">&times;</span>
+                    <h3 id="skillDetailTitle"></h3>
+                    <img id="skillDetailImg" src="" style="width:100%;border-radius:16px;margin:0.8rem 0;">
+                    <p><strong>提供者：</strong><span id="skillDetailProvider"></span> <span id="skillDetailRating" class="reputation-badge"></span></p>
+                    <p><strong>价格：</strong><span id="skillDetailPrice"></span></p>
+                    <p><strong>描述：</strong><span id="skillDetailDesc"></span></p>
+                    <button class="btn-primary" onclick="openChatForCurrent()"><i class="fas fa-comment"></i> <span class="lang-zh">联系提供者</span><span class="lang-en">Contact Provider</span></button>
+                    <button class="btn-outline" onclick="bookSkillForCurrent()" style="margin-left:0.5rem;"><i class="fas fa-calendar-check"></i> <span class="lang-zh">预约</span><span class="lang-en">Book</span></button>
+                </div>
+            </div>
+            <!-- 项目详情 -->
+            <div class="modal" id="projectDetailModal">
+                <div class="modal-content"><span class="modal-close" onclick="closeModal('projectDetailModal')">&times;</span>
+                    <h3 id="projectDetailTitle"></h3>
+                    <img id="projectDetailImg" src="" style="width:100%;border-radius:16px;margin:0.8rem 0;">
+                    <p><strong>发起人：</strong><span id="projectDetailOwner"></span> <span id="projectDetailRating" class="reputation-badge"></span></p>
+                    <p><strong>描述：</strong><span id="projectDetailDesc"></span></p>
+                    <p><strong>招募：</strong><span id="projectDetailRoles"></span></p>
+                    <button class="btn-primary" onclick="openChatForCurrent()"><i class="fas fa-comment"></i> <span class="lang-zh">联系发起人</span><span class="lang-en">Contact Owner</span></button>
+                    <button class="btn-outline" onclick="applyProjectForCurrent()" style="margin-left:0.5rem;"><i class="fas fa-paper-plane"></i> <span class="lang-zh">申请加入</span><span class="lang-en">Apply</span></button>
+                </div>
+            </div>
+            <!-- 任务详情 -->
+            <div class="modal" id="taskDetailModal">
+                <div class="modal-content"><span class="modal-close" onclick="closeModal('taskDetailModal')">&times;</span>
+                    <h3 id="taskDetailTitle"></h3>
+                    <img id="taskDetailImg" src="" style="width:100%;border-radius:16px;margin:0.8rem 0;">
+                    <p><strong>发布者：</strong><span id="taskDetailPublisher"></span> <span id="taskDetailRating" class="reputation-badge"></span></p>
+                    <p><strong>悬赏：</strong><span id="taskDetailReward"></span></p>
+                    <p><strong>描述：</strong><span id="taskDetailDesc"></span></p>
+                    <button class="btn-primary" onclick="openChatForCurrent()"><i class="fas fa-comment"></i> <span class="lang-zh">联系发布者</span><span class="lang-en">Contact Publisher</span></button>
+                    <button class="btn-outline" onclick="claimTaskForCurrent()" style="margin-left:0.5rem;"><i class="fas fa-hand-paper"></i> <span class="lang-zh">我来帮忙</span><span class="lang-en">I'll Help</span></button>
+                </div>
+            </div>
+
+            <!-- 预约模态框 -->
+            <div class="modal" id="bookingModal">
+                <div class="modal-content"><span class="modal-close" onclick="closeModal('bookingModal')">&times;</span>
+                    <h4 class="lang-zh">选择预约时间</h4><h4 class="lang-en">Select Appointment Time</h4>
+                    <div class="form-group"><label>日期和时间</label><input type="datetime-local" id="bookingTime"></div>
+                    <div class="form-group"><label>需求说明</label><textarea rows="3" id="bookingReq" placeholder="例如：需要讲解循环和函数"></textarea></div>
+                    <button class="btn-primary" onclick="sendBooking()"><span class="lang-zh">发送预约</span><span class="lang-en">Send Booking</span></button>
+                </div>
+            </div>
+            <!-- 编辑资料 -->
+            <div class="modal" id="editProfileModal">
+                <div class="modal-content"><span class="modal-close" onclick="closeModal('editProfileModal')">&times;</span>
+                    <h3 class="lang-zh">编辑资料</h3><h3 class="lang-en">Edit Profile</h3>
+                    <div class="form-group"><label>头像</label><div class="image-upload-area" style="padding:1rem;" onclick="document.getElementById('editAvatarInput').click()"><i class="fas fa-camera"></i> 点击上传</div><input type="file" id="editAvatarInput" accept="image/*" style="display:none;" onchange="previewEditAvatar(event)"><img id="editAvatarPreview" class="avatar-preview" src="https://via.placeholder.com/80" style="margin-top:1rem;"></div>
+                    <div class="form-group"><label><span class="lang-zh">昵称</span><span class="lang-en">Nickname</span></label><input type="text" id="editNickname" placeholder="输入你的昵称"></div>
+                    <div class="form-group"><label>学院</label><select id="editCollege"><option>创新工程学院</option><option>商学院</option><option>博雅学院</option><option>酒店与旅游管理学院</option></select></div>
+                    <div class="form-group"><label>入学年份</label><input type="number" id="editYear" min="2010" max="2030" value="2023"></div>
+                    <button class="btn-primary" onclick="saveProfile()"><span class="lang-zh">保存</span><span class="lang-en">Save</span></button>
+                </div>
+            </div>
+            <!-- 聊天 -->
+            <div class="modal" id="chatModal">
+                <div class="modal-content" style="max-width:420px;"><span class="modal-close" onclick="closeModal('chatModal')">&times;</span>
+                    <h4 id="chatContextTitle">对话</h4>
+                    <div class="chat-window" id="chatMessages"><div class="chat-message">你好，有什么可以帮你的？</div></div>
+                    <div class="chat-input"><input type="text" id="chatInput" placeholder="输入消息..."><button class="btn-primary" onclick="sendMessage()" style="width:auto;flex-shrink:0;">发送</button></div>
+                    <div class="chat-footer"><button onclick="showToast('info','举报已提交')"><i class="fas fa-flag"></i> 举报</button><button onclick="showToast('warning','已拉黑该用户')"><i class="fas fa-ban"></i> 拉黑</button></div>
+                </div>
+            </div>
+
+            <!-- 项目申请信息填写模态框 -->
+            <div class="modal" id="applyProjectModal">
+                <div class="modal-content"><span class="modal-close" onclick="closeModal('applyProjectModal')">&times;</span>
+                    <h4 class="lang-zh">申请加入项目</h4><h4 class="lang-en">Apply to Project</h4>
+                    <div class="form-group"><label><span class="lang-zh">姓名</span><span class="lang-en">Name</span> <span class="required">*</span></label><input type="text" id="applyName" placeholder="你的姓名"></div>
+                    <div class="form-group"><label><span class="lang-zh">学号</span><span class="lang-en">Student ID</span></label><input type="text" id="applyStudentId" placeholder="选填"></div>
+                    <div class="form-group"><label><span class="lang-zh">联系方式</span><span class="lang-en">Contact</span> <span class="required">*</span></label><input type="text" id="applyContact" placeholder="微信/手机/邮箱"></div>
+                    <div class="form-group"><label><span class="lang-zh">特长/技能</span><span class="lang-en">Skills</span></label><textarea id="applySkills" rows="2" placeholder="例如：Python、UI设计、摄影..."></textarea></div>
+                    <div class="form-group"><label><span class="lang-zh">申请理由</span><span class="lang-en">Reason</span> <span class="required">*</span></label><textarea id="applyReason" rows="3" placeholder="为什么想加入这个项目？"></textarea></div>
+                    <button class="btn-primary" onclick="submitProjectApply()"><span class="lang-zh">提交申请</span><span class="lang-en">Submit</span></button>
+                </div>
+            </div>
+
+            <!-- 双向评价模态框 -->
+            <div class="modal" id="ratingModal">
+                <div class="modal-content"><span class="modal-close" onclick="closeModal('ratingModal')">&times;</span>
+                    <h4 class="lang-zh">评价合作方</h4><h4 class="lang-en">Rate Partner</h4>
+                    <p id="ratingTargetInfo" style="margin-bottom:1rem;"></p>
+                    <div class="form-group">
+                        <label>星级评分</label>
+                        <div class="star-rating" id="starRating">
+                            <i class="fas fa-star" data-value="1"></i>
+                            <i class="fas fa-star" data-value="2"></i>
+                            <i class="fas fa-star" data-value="3"></i>
+                            <i class="fas fa-star" data-value="4"></i>
+                            <i class="fas fa-star" data-value="5"></i>
+                        </div>
+                        <div class="star-rating-text" id="starRatingText">请点击星星评分</div>
+                    </div>
+                    <div class="form-group">
+                        <label>文字评价</label>
+                        <textarea id="ratingComment" rows="3" placeholder="写下你的评价..."></textarea>
+                    </div>
+                    <button class="btn-primary" onclick="submitRating()"><span class="lang-zh">提交评价</span><span class="lang-en">Submit Rating</span></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 页脚 -->
+        <div class="footer">© 2026 MustLoop · 澳门科技大学 | <span class="lang-zh">让校园更可持续</span><span class="lang-en">Making campus more sustainable</span></div>
+    </div>
+
+    <script>
+        // ==================== 全局数据管理 ====================
+        const store = {
+            registeredUsers: [],
+            currentUser: null,
+            allItems: [],
+            allSkills: [],
+            allProjects: [],
+            allTasks: [],
+            currentViewing: null,
+            currentEditingPost: null,  // 正在编辑的发布
+            currentRating: null,      // 待评价信息 { postId, targetUserId, targetUserName }
+            _idCounter: 100,
+            genId() { return 'post_' + (this._idCounter++); }
+        };
+
+        // ==================== Toast 通知 ====================
+        function showToast(type, message) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            const icons = { success: 'fa-check-circle', info: 'fa-info-circle', warning: 'fa-exclamation-triangle' };
+            toast.innerHTML = `<i class="fas ${icons[type] || 'fa-info-circle'}"></i> ${message}`;
+            container.appendChild(toast);
+            setTimeout(() => { if (toast.parentNode) toast.remove(); }, 3000);
+        }
+
+        // ==================== 演示数据初始化 ====================
+        function initDemoData() {
+            store.registeredUsers.push({ id: '1230009568', password: '123456', college: '创新工程学院', year: '2023', avatar: 'https://via.placeholder.com/80', name: '李明' });
+            store.registeredUsers.push({ id: '1230009569', password: '123456', college: '商学院', year: '2022', avatar: 'https://via.placeholder.com/80/ff9900', name: '赵婷' });
+            store.registeredUsers.push({ id: '1230009570', password: '123456', college: '创新工程学院', year: '2023', avatar: 'https://via.placeholder.com/80/3498db', name: '张明' });
+            store.registeredUsers.push({ id: '1230009571', password: '123456', college: '博雅学院', year: '2021', avatar: 'https://via.placeholder.com/80/e74c3c', name: '王磊' });
+            store.registeredUsers.push({ id: '1230009572', password: '123456', college: '酒店与旅游管理学院', year: '2024', avatar: 'https://via.placeholder.com/80/27ae60', name: '陈静' });
+
+            const item1 = { id: store.genId(), type: 'item', title: '经济学原理 (第8版)', category: '教材', price: '30 MOP', condition: '几乎全新', desc: '正版教材，无笔记，图书馆自取。', img: 'https://via.placeholder.com/400x300/e8f5f3/2a9d8f?text=Economics', publisherId: '1230009568', publisherName: '李明', publisherRating: 4.8, publisherAvatar: 'https://via.placeholder.com/80', applicants: [ { userId: '1230009569', userName: '赵婷', avatar: 'https://via.placeholder.com/80/ff9900', status: 'pending', message: '请问可以便宜一点吗？', time: '2026-04-28 14:30' }, { userId: '1230009572', userName: '陈静', avatar: 'https://via.placeholder.com/80/27ae60', status: 'accepted', message: '我要了，今天可以取吗？', time: '2026-04-29 09:15' } ] };
+            const item2 = { id: store.genId(), type: 'item', title: '小米充电宝 20000mAh', category: '电子产品', price: '免费', condition: '轻微痕迹', desc: '功能正常，F座自取。', img: 'https://via.placeholder.com/400x300/fef5ec/e67e22?text=PowerBank', publisherId: '1230009569', publisherName: '赵婷', publisherRating: 4.5, publisherAvatar: 'https://via.placeholder.com/80/ff9900', applicants: [{ userId: '1230009568', userName: '李明', avatar: 'https://via.placeholder.com/80', status: 'accepted', message: '我要，什么时候方便？', time: '2026-04-27 16:00' }] };
+            const item3 = { id: store.genId(), type: 'item', title: '高等数学辅导书', category: '教材', price: '20 MOP', condition: '全新', desc: '全新未使用，可面交。', img: 'https://via.placeholder.com/400x300/eaf2fb/3498db?text=Math', publisherId: '1230009571', publisherName: '王磊', publisherRating: 4.7, publisherAvatar: 'https://via.placeholder.com/80/e74c3c', applicants: [] };
+            const item4 = { id: store.genId(), type: 'item', title: '蓝牙耳机', category: '电子产品', price: '50 MOP', condition: '良好', desc: '使用半年，功能完好。', img: 'https://via.placeholder.com/400x300/f0f4f8/1e2b3c?text=Headphones', publisherId: '1230009572', publisherName: '陈静', publisherRating: 4.6, publisherAvatar: 'https://via.placeholder.com/80/27ae60', applicants: [] };
+            store.allItems = [item1, item2, item3, item4];
+
+            const skill1 = { id: store.genId(), type: 'skill', title: 'Python入门辅导', category: '编程', price: '50 MUST币/小时', desc: '适合零基础，帮助完成课程作业。', img: 'https://via.placeholder.com/400x300/e8f5f3/2a9d8f?text=Python', publisherId: '1230009571', publisherName: '王磊', publisherRating: 4.9, publisherAvatar: 'https://via.placeholder.com/80/e74c3c', available: '周一至周五19-21点', applicants: [ { userId: '1230009568', userName: '李明', avatar: 'https://via.placeholder.com/80', status: 'accepted', message: '想学Python基础', time: '2026-04-26 10:00' } ] };
+            const skill2 = { id: store.genId(), type: 'skill', title: '葡萄牙语基础会话', category: '语言', price: '40 MOP/小时', desc: '日常会话，可练习口语。', img: 'https://via.placeholder.com/400x300/eaf2fb/3498db?text=Portuguese', publisherId: '1230009572', publisherName: '陈静', publisherRating: 4.7, publisherAvatar: 'https://via.placeholder.com/80/27ae60', available: '周三、周五下午', applicants: [] };
+            const skill3 = { id: store.genId(), type: 'skill', title: '吉他入门', category: '音乐', price: '60 MUST币/小时', desc: '民谣吉他，零基础可学。', img: 'https://via.placeholder.com/400x300/fef5ec/e67e22?text=Guitar', publisherId: '1230009570', publisherName: '张明', publisherRating: 4.8, publisherAvatar: 'https://via.placeholder.com/80/3498db', available: '周末全天', applicants: [] };
+            const skill4 = { id: store.genId(), type: 'skill', title: 'PS修图教学', category: '设计', price: '30 MOP/小时', desc: 'Photoshop基础到进阶。', img: 'https://via.placeholder.com/400x300/fdecea/e74c3c?text=Photoshop', publisherId: '1230009569', publisherName: '赵婷', publisherRating: 4.6, publisherAvatar: 'https://via.placeholder.com/80/ff9900', available: '周一至周四晚间', applicants: [{ userId: '1230009568', userName: '李明', avatar: 'https://via.placeholder.com/80', status: 'pending', message: '想学人像修图', time: '2026-04-30 08:00' }] };
+            store.allSkills = [skill1, skill2, skill3, skill4];
+
+            const proj1 = { id: store.genId(), type: 'project', title: '智能垃圾分类', category: '创业', desc: '开发垃圾分类小程序，利用AI识别垃圾种类。', img: 'https://via.placeholder.com/400x300/e8f5f3/2a9d8f?text=AI+Recycle', publisherId: '1230009570', publisherName: '张明', publisherRating: 4.8, publisherAvatar: 'https://via.placeholder.com/80/3498db', roles: 'UI设计, 后端开发', deadline: '2026-06-30', applicants: [ { userId: '1230009568', userName: '李明', avatar: 'https://via.placeholder.com/80', status: 'pending', message: '我有后端开发经验，想加入', time: '2026-04-25' }, { userId: '1230009571', userName: '王磊', avatar: 'https://via.placeholder.com/80/e74c3c', status: 'accepted', message: '我可以做UI设计', time: '2026-04-24' } ] };
+            const proj2 = { id: store.genId(), type: 'project', title: '校园植物图鉴App', category: '研究', desc: '制作校园植物科普App。', img: 'https://via.placeholder.com/400x300/eaf2fb/3498db?text=Plant+App', publisherId: '1230009572', publisherName: '陈静', publisherRating: 4.5, publisherAvatar: 'https://via.placeholder.com/80/27ae60', roles: '植物学, 摄影', deadline: '2026-07-15', applicants: [] };
+            const proj3 = { id: store.genId(), type: 'project', title: '校园二手书回收平台', category: '公益', desc: '搭建校内二手书循环系统。', img: 'https://via.placeholder.com/400x300/fef5ec/e67e22?text=Recycle+Books', publisherId: '1230009568', publisherName: '李明', publisherRating: 4.8, publisherAvatar: 'https://via.placeholder.com/80', roles: '开发, 运营', deadline: '2026-08-01', applicants: [ { userId: '1230009569', userName: '赵婷', avatar: 'https://via.placeholder.com/80/ff9900', status: 'pending', message: '我对运营感兴趣', time: '2026-04-29' } ] };
+            const proj4 = { id: store.genId(), type: 'project', title: 'AI学习小组', category: '学习', desc: '一起学习机器学习基础。', img: 'https://via.placeholder.com/400x300/f0f4f8/1e2b3c?text=AI+Study', publisherId: '1230009571', publisherName: '王磊', publisherRating: 4.9, publisherAvatar: 'https://via.placeholder.com/80/e74c3c', roles: '对AI感兴趣的同学', deadline: '2026-05-30', applicants: [] };
+            store.allProjects = [proj1, proj2, proj3, proj4];
+
+            const task1 = { id: store.genId(), type: 'task', title: '帮忙取快递 (F座)', desc: '快递在F座一楼快递柜，取后送到A座101。', img: 'https://via.placeholder.com/400x300/fdecea/e74c3c?text=Task', publisherId: '1230009569', publisherName: '赵婷', publisherRating: 4.6, publisherAvatar: 'https://via.placeholder.com/80/ff9900', reward: '5 MUST币', deadline: '2026-05-01T18:00', location: 'F座', claimers: [ { userId: '1230009568', userName: '李明', avatar: 'https://via.placeholder.com/80', status: 'claimed', time: '2026-04-30 10:00' } ] };
+            const task2 = { id: store.genId(), type: 'task', title: '求教打印机使用', desc: '图书馆打印机不会用，求指导。', img: 'https://via.placeholder.com/400x300/eaf2fb/3498db?text=Printer', publisherId: '1230009570', publisherName: '张明', publisherRating: 4.9, publisherAvatar: 'https://via.placeholder.com/80/3498db', reward: '一杯奶茶', deadline: '2026-04-30T20:00', location: '图书馆', claimers: [] };
+            const task3 = { id: store.genId(), type: 'task', title: '代购午饭', desc: '希望带一份烧腊饭到A座。', img: 'https://via.placeholder.com/400x300/fef5ec/e67e22?text=Lunch', publisherId: '1230009571', publisherName: '王磊', publisherRating: 4.5, publisherAvatar: 'https://via.placeholder.com/80/e74c3c', reward: '10 MUST币', deadline: '2026-04-30T12:00', location: '餐厅', claimers: [{ userId: '1230009572', userName: '陈静', avatar: 'https://via.placeholder.com/80/27ae60', status: 'completed', time: '2026-04-30 11:45' }] };
+            const task4 = { id: store.genId(), type: 'task', title: '帮忙搬书', desc: '从图书馆搬一箱书到宿舍。', img: 'https://via.placeholder.com/400x300/f0f4f8/1e2b3c?text=Move+Books', publisherId: '1230009572', publisherName: '陈静', publisherRating: 4.8, publisherAvatar: 'https://via.placeholder.com/80/27ae60', reward: '15 MUST币', deadline: '2026-05-02T17:00', location: '图书馆', claimers: [] };
+            store.allTasks = [task1, task2, task3, task4];
+        }
+
+        // ==================== 渲染卡片 ====================
+        function renderMarketCards() {
+            const grid = document.getElementById('marketCardGrid');
+            if (!grid) return;
+            grid.innerHTML = store.allItems.map(item => `
+            <div class="item-card" onclick="viewItemById('${item.id}')">
+              <div class="card-img-wrapper"><img src="${item.img}" alt="${item.title}" loading="lazy"><span class="card-badge">${item.category}</span></div>
+              <div class="title">${item.title}</div>
+              <div class="meta"><span>💰 ${item.price}</span><span>📦 ${item.condition}</span></div>
+              <div class="card-footer"><span class="reputation-badge"><i class="fas fa-star"></i> ${item.publisherRating}</span><span style="font-size:0.75rem;color:#7f8fa4;">${item.publisherName}</span></div>
+            </div>`).join('');
+        }
+        function renderSkillCards() {
+            const grid = document.getElementById('skillCardGrid');
+            if (!grid) return;
+            grid.innerHTML = store.allSkills.map(s => `
+            <div class="item-card" onclick="viewSkillById('${s.id}')">
+              <div class="card-img-wrapper"><img src="${s.img}" alt="${s.title}" loading="lazy"><span class="card-badge">${s.category}</span></div>
+              <div class="title">${s.title}</div>
+              <div class="meta"><span>💰 ${s.price}</span></div>
+              <div class="card-footer"><span class="reputation-badge"><i class="fas fa-star"></i> ${s.publisherRating}</span><span style="font-size:0.75rem;color:#7f8fa4;">${s.publisherName}</span></div>
+            </div>`).join('');
+        }
+        function renderProjectCards() {
+            const grid = document.getElementById('projectCardGrid');
+            if (!grid) return;
+            grid.innerHTML = store.allProjects.map(p => `
+            <div class="item-card" onclick="viewProjectById('${p.id}')">
+              <div class="card-img-wrapper"><img src="${p.img}" alt="${p.title}" loading="lazy"><span class="card-badge">${p.category}</span></div>
+              <div class="title">${p.title}</div>
+              <div class="meta"><span>👥 ${p.roles}</span></div>
+              <div class="card-footer"><span class="reputation-badge"><i class="fas fa-star"></i> ${p.publisherRating}</span><span style="font-size:0.75rem;color:#7f8fa4;">${p.publisherName}</span></div>
+            </div>`).join('');
+        }
+        function renderTaskCards() {
+            const grid = document.getElementById('taskCardGrid');
+            if (!grid) return;
+            grid.innerHTML = store.allTasks.map(t => `
+            <div class="item-card" onclick="viewTaskById('${t.id}')">
+              <div class="card-img-wrapper"><img src="${t.img}" alt="${t.title}" loading="lazy"><span class="card-badge">📍 ${t.location || '校内'}</span></div>
+              <div class="title">${t.title}</div>
+              <div class="meta"><span>🏆 ${t.reward}</span></div>
+              <div class="card-footer"><span class="reputation-badge"><i class="fas fa-star"></i> ${t.publisherRating}</span><span style="font-size:0.75rem;color:#7f8fa4;">${t.publisherName}</span></div>
+            </div>`).join('');
+        }
+        function refreshAllCards() {
+            renderMarketCards(); renderSkillCards(); renderProjectCards(); renderTaskCards();
+        }
+
+        function findPostById(id) {
+            return store.allItems.find(p => p.id === id) || store.allSkills.find(p => p.id === id) || store.allProjects.find(p => p.id === id) || store.allTasks.find(p => p.id === id) || null;
+        }
+        function getApplicantsForPost(post) {
+            if (!post) return [];
+            return post.type === 'task' ? (post.claimers || []) : (post.applicants || []);
+        }
+
+        function viewItemById(id) {
+            const item = store.allItems.find(i => i.id === id); if (!item) return; store.currentViewing = item;
+            document.getElementById('itemDetailTitle').innerText = item.title; document.getElementById('itemDetailPrice').innerText = item.price;
+            document.getElementById('itemDetailCondition').innerText = item.condition; document.getElementById('itemDetailSeller').innerText = item.publisherName;
+            document.getElementById('itemDetailRating').innerHTML = '<i class="fas fa-star"></i> ' + item.publisherRating;
+            document.getElementById('itemDetailDesc').innerText = item.desc; document.getElementById('itemDetailImg').src = item.img; showModal('itemDetailModal');
+        }
+        function viewSkillById(id) {
+            const skill = store.allSkills.find(s => s.id === id); if (!skill) return; store.currentViewing = skill;
+            document.getElementById('skillDetailTitle').innerText = skill.title; document.getElementById('skillDetailProvider').innerText = skill.publisherName;
+            document.getElementById('skillDetailRating').innerHTML = '<i class="fas fa-star"></i> ' + skill.publisherRating;
+            document.getElementById('skillDetailPrice').innerText = skill.price; document.getElementById('skillDetailDesc').innerText = skill.desc;
+            document.getElementById('skillDetailImg').src = skill.img; showModal('skillDetailModal');
+        }
+        function viewProjectById(id) {
+            const proj = store.allProjects.find(p => p.id === id); if (!proj) return; store.currentViewing = proj;
+            document.getElementById('projectDetailTitle').innerText = proj.title; document.getElementById('projectDetailOwner').innerText = proj.publisherName;
+            document.getElementById('projectDetailRating').innerHTML = '<i class="fas fa-star"></i> ' + proj.publisherRating;
+            document.getElementById('projectDetailDesc').innerText = proj.desc; document.getElementById('projectDetailRoles').innerText = proj.roles;
+            document.getElementById('projectDetailImg').src = proj.img; showModal('projectDetailModal');
+        }
+        function viewTaskById(id) {
+            const task = store.allTasks.find(t => t.id === id); if (!task) return; store.currentViewing = task;
+            document.getElementById('taskDetailTitle').innerText = task.title; document.getElementById('taskDetailPublisher').innerText = task.publisherName;
+            document.getElementById('taskDetailRating').innerHTML = '<i class="fas fa-star"></i> ' + task.publisherRating;
+            document.getElementById('taskDetailReward').innerText = task.reward; document.getElementById('taskDetailDesc').innerText = task.desc;
+            document.getElementById('taskDetailImg').src = task.img; showModal('taskDetailModal');
+        }
+
+        function openChatForCurrent() {
+            if (!store.currentViewing) return;
+            const name = store.currentViewing.publisherName || '对方';
+            document.getElementById('chatContextTitle').innerText = `与 ${name} 的对话`;
+            document.getElementById('chatMessages').innerHTML = '<div class="chat-message">你好，有什么可以帮你的？</div>';
+            showModal('chatModal');
+        }
+
+        // 项目申请：打开详细信息填写界面
+        function applyProjectForCurrent() {
+            if (!store.currentViewing || store.currentViewing.type !== 'project') return;
+            if (!store.currentUser) { showToast('warning', '请先登录'); return; }
+            const post = store.currentViewing;
+            if (post.applicants && post.applicants.find(a => a.userId === store.currentUser.id)) {
+                showToast('info', '您已申请过该项目'); return;
+            }
+            // 预填当前用户信息
+            document.getElementById('applyName').value = store.currentUser.name || '';
+            document.getElementById('applyStudentId').value = store.currentUser.id || '';
+            document.getElementById('applyContact').value = '';
+            document.getElementById('applySkills').value = '';
+            document.getElementById('applyReason').value = '';
+            showModal('applyProjectModal');
+        }
+
+        function submitProjectApply() {
+            const name = document.getElementById('applyName').value.trim();
+            const contact = document.getElementById('applyContact').value.trim();
+            const reason = document.getElementById('applyReason').value.trim();
+            const skills = document.getElementById('applySkills').value.trim();
+            const studentId = document.getElementById('applyStudentId').value.trim();
+            if (!name || !contact || !reason) { showToast('warning', '请填写姓名、联系方式和申请理由'); return; }
+            const post = store.currentViewing;
+            if (!post) return;
+            if (!post.applicants) post.applicants = [];
+            post.applicants.push({
+                userId: store.currentUser.id,
+                userName: name,
+                avatar: store.currentUser.avatar || 'https://via.placeholder.com/80',
+                status: 'pending',
+                message: `理由: ${reason}` + (skills ? ` | 特长: ${skills}` : '') + (studentId ? ` | 学号: ${studentId}` : '') + ` | 联系方式: ${contact}`,
+                time: new Date().toISOString().slice(0, 16).replace('T', ' ')
+            });
+            if (!store.currentUser.participations) store.currentUser.participations = [];
+            store.currentUser.participations.push({
+                type: 'project', id: post.id, title: post.title, owner: post.publisherName,
+                rating: post.publisherRating, desc: post.desc, img: post.img, status: '申请中'
+            });
+            showToast('success', '申请已发送！');
+            closeModal('applyProjectModal');
+            closeModal('projectDetailModal');
+            refreshAllCards();
+            if (document.getElementById('myPage').classList.contains('active')) { renderMyPosts(); renderMyParticipations(); }
+        }
+
+        function claimTaskForCurrent() { /* 保持不变 */ 
+            if (!store.currentViewing || store.currentViewing.type !== 'task') return;
+            if (!store.currentUser) { showToast('warning', '请先登录'); return; }
+            const post = store.currentViewing;
+            if (post.claimers && post.claimers.find(c => c.userId === store.currentUser.id)) { showToast('info', '您已接过该任务'); return; }
+            if (!post.claimers) post.claimers = [];
+            post.claimers.push({ userId: store.currentUser.id, userName: store.currentUser.name || ('用户' + store.currentUser.id), avatar: store.currentUser.avatar || 'https://via.placeholder.com/80', status: 'claimed', time: new Date().toISOString().slice(0, 16).replace('T', ' ') });
+            if (!store.currentUser.participations) store.currentUser.participations = [];
+            store.currentUser.participations.push({ type: 'task', id: post.id, title: post.title, publisher: post.publisherName, rating: post.publisherRating, reward: post.reward, desc: post.desc, img: post.img, status: '进行中' });
+            showToast('success', '接单成功！'); closeModal('taskDetailModal'); refreshAllCards();
+            if (document.getElementById('myPage').classList.contains('active')) { renderMyPosts(); renderMyParticipations(); }
+        }
+
+        function bookSkillForCurrent() { if (!store.currentViewing || store.currentViewing.type !== 'skill') return; if (!store.currentUser) { showToast('warning', '请先登录'); return; } store._bookingSkill = store.currentViewing; showModal('bookingModal'); }
+        function sendBooking() {
+            const time = document.getElementById('bookingTime').value; const req = document.getElementById('bookingReq').value;
+            if (!time) { showToast('warning', '请选择时间'); return; } const skill = store._bookingSkill; if (!skill) return;
+            if (!skill.applicants) skill.applicants = [];
+            skill.applicants.push({ userId: store.currentUser.id, userName: store.currentUser.name || ('用户' + store.currentUser.id), avatar: store.currentUser.avatar || 'https://via.placeholder.com/80', status: 'pending', message: `预约时间: ${time}` + (req ? ` | 需求: ${req}` : ''), time: new Date().toISOString().slice(0, 16).replace('T', ' ') });
+            if (!store.currentUser.participations) store.currentUser.participations = [];
+            store.currentUser.participations.push({ type: 'skill', id: skill.id, title: skill.title, provider: skill.publisherName, rating: skill.publisherRating, time: time, desc: req || '预约时间待确认', img: skill.img, status: '待确认' });
+            showToast('success', '预约请求已发送！'); closeModal('bookingModal'); closeModal('skillDetailModal'); store._bookingSkill = null;
+            refreshAllCards(); if (document.getElementById('myPage').classList.contains('active')) { renderMyPosts(); renderMyParticipations(); }
+        }
+
+        // ==================== 我的发布（带编辑和参与者管理） ====================
+        function renderMyPosts() {
+            const container = document.getElementById('myPostsContainer');
+            if (!container) return;
+            if (!store.currentUser) { container.innerHTML = '<div class="empty-state"><i class="fas fa-user-slash"></i><span class="lang-zh">请先登录</span><span class="lang-en">Please login first</span></div>'; return; }
+            const myPosts = [ ...store.allItems.filter(p => p.publisherId === store.currentUser.id), ...store.allSkills.filter(p => p.publisherId === store.currentUser.id), ...store.allProjects.filter(p => p.publisherId === store.currentUser.id), ...store.allTasks.filter(p => p.publisherId === store.currentUser.id) ];
+            if (myPosts.length === 0) { container.innerHTML = '<div class="empty-state"><i class="fas fa-box-open"></i><span class="lang-zh">暂无发布</span><span class="lang-en">No posts yet</span></div>'; return; }
+            let html = '';
+            myPosts.forEach(post => {
+                const applicants = getApplicantsForPost(post);
+                const pendingCount = applicants.filter(a => a.status === 'pending').length;
+                const totalCount = applicants.length;
+                const typeIcon = post.type === 'item' ? '📦' : post.type === 'skill' ? '🎓' : post.type === 'project' ? '🚀' : '📋';
+                const priceInfo = post.price || post.reward || '';
+                html += `
+                <div class="my-item" style="flex-direction:column;align-items:stretch;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
+                    <div class="item-info">
+                      <span style="font-size:0.7rem;color:#7f8fa4;background:#f0f3f7;padding:0.15rem 0.5rem;border-radius:12px;">${typeIcon} ${post.type==='item'?'商品':post.type==='skill'?'技能':post.type==='project'?'项目':'任务'}</span>
+                      <span class="item-title" style="margin-left:0.4rem;">${post.title}</span>
+                      <span class="item-meta" style="margin-left:0.5rem;">${priceInfo}</span>
+                    </div>
+                    <div class="actions">
+                      ${totalCount > 0 ? `<span class="participants-count" onclick="toggleParticipants('participants_${post.id}')"><i class="fas fa-users"></i> ${totalCount} 人${pendingCount>0?`<span style="background:#f0a500;color:white;border-radius:50%;padding:1px 5px;font-size:0.6rem;margin-left:2px;">${pendingCount}新</span>`:''}</span>` : '<span style="font-size:0.7rem;color:#b0c4d9;">暂无参与者</span>'}
+                      <button class="btn-outline-sm btn-outline" onclick="viewPostById('${post.id}')">查看</button>
+                      <button class="btn-outline-sm btn-outline" onclick="editPostById('${post.id}')">编辑</button>
+                      <button class="btn-outline-sm btn-outline" onclick="deletePostById('${post.id}')">下架</button>
+                    </div>
+                  </div>
+                  ${totalCount > 0 ? `
+                  <div class="participants-expand" id="participants_${post.id}">
+                    <strong style="font-size:0.8rem;color:#4f6f8f;">👥 参与者列表：</strong>
+                    ${applicants.map(a => `
+                      <div class="participant-row">
+                        <div class="participant-info">
+                          <img src="${a.avatar}" class="participant-avatar" loading="lazy">
+                          <div><strong>${a.userName}</strong> <span class="status-badge status-${a.status==='pending'?'pending':a.status==='accepted'?'accepted':'completed'}">${a.status==='pending'?'待处理':a.status==='accepted'?'已接受':'已完成'}</span>
+                          <div style="font-size:0.7rem;color:#7f8fa4;">${a.message||''} · ${a.time||''}</div></div>
+                        </div>
+                        ${a.status==='pending'?`<div style="display:flex;gap:0.3rem;"><button class="btn-accept" onclick="acceptApplicant('${post.id}','${a.userId}')">✓ 接受</button><button class="btn-reject" onclick="rejectApplicant('${post.id}','${a.userId}')">✗ 拒绝</button></div>`:''}
+                      </div>`).join('')}
+                  </div>`:''}
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function toggleParticipants(id) { const el = document.getElementById(id); if (el) el.classList.toggle('show'); }
+        function acceptApplicant(postId, userId) { const post = findPostById(postId); if (!post) return; const applicants = getApplicantsForPost(post); const a = applicants.find(a => a.userId === userId); if (a) { a.status = 'accepted'; showToast('success', `已接受 ${a.userName} 的申请`); renderMyPosts(); refreshAllCards(); } }
+        function rejectApplicant(postId, userId) { const post = findPostById(postId); if (!post) return; const applicants = getApplicantsForPost(post); const idx = applicants.findIndex(a => a.userId === userId); if (idx >= 0 && confirm(`确定拒绝 ${applicants[idx].userName} 的申请吗？`)) { applicants.splice(idx, 1); showToast('info', '已拒绝该申请'); renderMyPosts(); refreshAllCards(); } }
+
+        function viewPostById(id) { const post = findPostById(id); if (!post) return; store.currentViewing = post; if (post.type==='item') viewItemById(id); else if (post.type==='skill') viewSkillById(id); else if (post.type==='project') viewProjectById(id); else if (post.type==='task') viewTaskById(id); }
+        function deletePostById(id) { if (!confirm('确定下架该发布吗？此操作不可撤销。')) return; ['allItems','allSkills','allProjects','allTasks'].forEach(key => { const arr = store[key]; const idx = arr.findIndex(p => p.id === id); if (idx >= 0) arr.splice(idx, 1); }); showToast('info', '发布已下架'); renderMyPosts(); refreshAllCards(); }
+
+        // ==================== 编辑发布功能 ====================
+        function editPostById(id) {
+            const post = findPostById(id);
+            if (!post) return;
+            store.currentEditingPost = post;
+            // 打开对应模态框并填充数据
+            if (post.type === 'item') {
+                document.getElementById('itemTitle').value = post.title;
+                document.getElementById('itemCategory').value = post.category || '教材';
+                document.getElementById('itemCondition').value = post.condition || '全新';
+                document.getElementById('itemPrice').value = parseFloat(post.price) || 0;
+                document.getElementById('itemDesc').value = post.desc || '';
+                document.getElementById('itemLocation').value = post.location || '';
+                showModal('postItemModal');
+            } else if (post.type === 'skill') {
+                document.getElementById('skillName').value = post.title;
+                document.getElementById('skillCategory').value = post.category || '编程';
+                document.getElementById('skillDesc').value = post.desc || '';
+                document.getElementById('skillAvailable').value = post.available || '';
+                const rateParts = post.price ? post.price.split(' ') : ['0','MUST币/小时'];
+                document.getElementById('skillRateValue').value = parseFloat(rateParts[0]) || 0;
+                document.getElementById('skillRateType').value = rateParts[1] || 'MUST币/小时';
+                showModal('postSkillModal');
+            } else if (post.type === 'project') {
+                document.getElementById('projectName').value = post.title;
+                document.getElementById('projectType').value = post.category || '创业';
+                document.getElementById('projectDesc').value = post.desc || '';
+                document.getElementById('projectRoles').value = post.roles || '';
+                document.getElementById('projectDeadline').value = post.deadline || '';
+                showModal('postProjectModal');
+            } else if (post.type === 'task') {
+                document.getElementById('taskTitle').value = post.title;
+                document.getElementById('taskDesc').value = post.desc || '';
+                document.getElementById('taskReward').value = parseFloat(post.reward) || 5;
+                document.getElementById('taskDeadline').value = post.deadline || '';
+                document.getElementById('taskLocation').value = post.location || '';
+                showModal('postTaskModal');
+            }
+        }
+
+        function applyEditToPost(post) {
+            if (!store.currentEditingPost) return;
+            const editing = store.currentEditingPost;
+            // 更新字段
+            if (editing.type === 'item') {
+                editing.title = post.title; editing.category = post.category; editing.condition = post.condition;
+                editing.price = post.price; editing.desc = post.desc; editing.location = post.location;
+            } else if (editing.type === 'skill') {
+                editing.title = post.title; editing.category = post.category; editing.desc = post.desc;
+                editing.price = post.price; editing.available = post.available;
+            } else if (editing.type === 'project') {
+                editing.title = post.title; editing.category = post.category; editing.desc = post.desc;
+                editing.roles = post.roles; editing.deadline = post.deadline;
+            } else if (editing.type === 'task') {
+                editing.title = post.title; editing.desc = post.desc; editing.reward = post.reward;
+                editing.deadline = post.deadline; editing.location = post.location;
+            }
+            // 同时更新名称
+            editing.publisherName = store.currentUser.name || editing.publisherName;
+        }
+
+        // ==================== 修改发布函数，加入编辑逻辑 ====================
+        function publishItem() {
+            if (!store.currentUser) { showToast('warning', '请先登录'); return; }
+            const title = document.getElementById('itemTitle').value; const price = parseFloat(document.getElementById('itemPrice').value);
+            if (!title) { showToast('warning', '标题不能为空'); return; }
+            if (isNaN(price) || price < 0) { showToast('warning', '请输入有效的价格'); return; }
+            const newData = {
+                title, category: document.getElementById('itemCategory').value,
+                price: price === 0 ? '免费' : price + ' MOP', condition: document.getElementById('itemCondition').value,
+                desc: document.getElementById('itemDesc').value || '暂无描述',
+                img: 'https://via.placeholder.com/400x300/e8f5f3/2a9d8f?text=' + encodeURIComponent(title.slice(0,10)),
+                publisherId: store.currentUser.id, publisherName: store.currentUser.name || ('用户'+store.currentUser.id),
+                publisherRating: 4.5, publisherAvatar: store.currentUser.avatar || 'https://via.placeholder.com/80',
+                applicants: [], location: document.getElementById('itemLocation').value || '校内'
+            };
+            if (store.currentEditingPost && store.currentEditingPost.type === 'item') {
+                applyEditToPost(newData);
+                showToast('success', '商品信息已更新');
+                store.currentEditingPost = null;
+            } else {
+                const newItem = { id: store.genId(), type: 'item', ...newData };
+                store.allItems.unshift(newItem);
+                showToast('success', '商品发布成功！');
+            }
+            closeModal('postItemModal');
+            document.getElementById('itemTitle').value = ''; document.getElementById('itemPrice').value = ''; document.getElementById('itemDesc').value = '';
+            refreshAllCards(); if (document.getElementById('marketPage').classList.contains('active')) renderMarketCards();
+            if (document.getElementById('myPage').classList.contains('active')) renderMyPosts();
+        }
+
+        function publishSkill() {
+            if (!store.currentUser) { showToast('warning', '请先登录'); return; }
+            const name = document.getElementById('skillName').value; const rate = parseFloat(document.getElementById('skillRateValue').value);
+            if (!name) { showToast('warning', '技能名称不能为空'); return; }
+            if (isNaN(rate) || rate < 0) { showToast('warning', '请输入有效的金额'); return; }
+            const rateType = document.getElementById('skillRateType').value;
+            const newData = {
+                title: name, category: document.getElementById('skillCategory').value,
+                price: rate + ' ' + rateType, desc: document.getElementById('skillDesc').value || '暂无描述',
+                img: 'https://via.placeholder.com/400x300/eaf2fb/3498db?text=' + encodeURIComponent(name.slice(0,10)),
+                publisherId: store.currentUser.id, publisherName: store.currentUser.name || ('用户'+store.currentUser.id),
+                publisherRating: 4.5, publisherAvatar: store.currentUser.avatar || 'https://via.placeholder.com/80',
+                available: document.getElementById('skillAvailable').value || '待定', applicants: []
+            };
+            if (store.currentEditingPost && store.currentEditingPost.type === 'skill') {
+                applyEditToPost(newData);
+                showToast('success', '技能信息已更新');
+                store.currentEditingPost = null;
+            } else {
+                const newSkill = { id: store.genId(), type: 'skill', ...newData };
+                store.allSkills.unshift(newSkill);
+                showToast('success', '技能发布成功！');
+            }
+            closeModal('postSkillModal');
+            document.getElementById('skillName').value = ''; document.getElementById('skillRateValue').value = '';
+            refreshAllCards(); if (document.getElementById('myPage').classList.contains('active')) renderMyPosts();
+        }
+
+        function publishProject() {
+            if (!store.currentUser) { showToast('warning', '请先登录'); return; }
+            const name = document.getElementById('projectName').value;
+            if (!name) { showToast('warning', '项目名称不能为空'); return; }
+            const newData = {
+                title: name, category: document.getElementById('projectType').value,
+                desc: document.getElementById('projectDesc').value || '暂无描述',
+                img: 'https://via.placeholder.com/400x300/fef5ec/e67e22?text=' + encodeURIComponent(name.slice(0,10)),
+                publisherId: store.currentUser.id, publisherName: store.currentUser.name || ('用户'+store.currentUser.id),
+                publisherRating: 4.5, publisherAvatar: store.currentUser.avatar || 'https://via.placeholder.com/80',
+                roles: document.getElementById('projectRoles').value || '待定',
+                deadline: document.getElementById('projectDeadline').value || '待定', applicants: []
+            };
+            if (store.currentEditingPost && store.currentEditingPost.type === 'project') {
+                applyEditToPost(newData);
+                showToast('success', '项目信息已更新');
+                store.currentEditingPost = null;
+            } else {
+                const newProject = { id: store.genId(), type: 'project', ...newData };
+                store.allProjects.unshift(newProject);
+                showToast('success', '项目发布成功！');
+            }
+            closeModal('postProjectModal');
+            document.getElementById('projectName').value = ''; refreshAllCards();
+            if (document.getElementById('myPage').classList.contains('active')) renderMyPosts();
+        }
+
+        function publishTask() {
+            if (!store.currentUser) { showToast('warning', '请先登录'); return; }
+            const title = document.getElementById('taskTitle').value; const reward = parseFloat(document.getElementById('taskReward').value);
+            if (!title) { showToast('warning', '任务标题不能为空'); return; }
+            if (isNaN(reward) || reward < 0) { showToast('warning', '请输入有效的悬赏金额'); return; }
+            const newData = {
+                title, desc: document.getElementById('taskDesc').value || '暂无描述',
+                img: 'https://via.placeholder.com/400x300/fdecea/e74c3c?text=' + encodeURIComponent(title.slice(0,10)),
+                publisherId: store.currentUser.id, publisherName: store.currentUser.name || ('用户'+store.currentUser.id),
+                publisherRating: 4.5, publisherAvatar: store.currentUser.avatar || 'https://via.placeholder.com/80',
+                reward: reward + ' MUST币', deadline: document.getElementById('taskDeadline').value || '待定',
+                location: document.getElementById('taskLocation').value || '校内', claimers: []
+            };
+            if (store.currentEditingPost && store.currentEditingPost.type === 'task') {
+                applyEditToPost(newData);
+                showToast('success', '任务信息已更新');
+                store.currentEditingPost = null;
+            } else {
+                const newTask = { id: store.genId(), type: 'task', ...newData };
+                store.allTasks.unshift(newTask);
+                showToast('success', '任务发布成功！');
+            }
+            closeModal('postTaskModal');
+            document.getElementById('taskTitle').value = ''; document.getElementById('taskReward').value = '5';
+            refreshAllCards(); if (document.getElementById('myPage').classList.contains('active')) renderMyPosts();
+        }
+
+        // ==================== 我参与的 ====================
+        function renderMyParticipations() {
+            const container = document.getElementById('myParticipationsContainer');
+            if (!container) return;
+            if (!store.currentUser || !store.currentUser.participations || store.currentUser.participations.length===0) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><span class="lang-zh">暂无参与记录</span><span class="lang-en">No participations yet</span></div>'; return;
+            }
+            let html = '';
+            store.currentUser.participations.forEach((part, index) => {
+                const icon = part.type==='task'?'📋':part.type==='skill'?'🎓':'🚀';
+                html += `<div class="my-item"><div class="item-info"><span class="item-title">${icon} ${part.title}</span><span class="item-meta">${part.status||''} · ${part.reward||part.time||''}</span></div>
+                <div class="actions"><button class="btn-outline-sm btn-outline" onclick="viewParticipationPost('${part.id}')">查看</button><button class="btn-outline-sm btn-outline" onclick="contactParticipationPost('${part.id}')">联系</button><button class="btn-outline-sm btn-outline" onclick="completeParticipation(${index})">完成</button></div></div>`;
+            });
+            container.innerHTML = html;
+        }
+        function viewParticipationPost(id) { const post = findPostById(id); if (!post) { showToast('info','该发布已下架'); return; } store.currentViewing = post; viewPostById(id); }
+        function contactParticipationPost(id) { const post = findPostById(id); if (!post) { showToast('info','该发布已下架'); return; } store.currentViewing = post; openChatForCurrent(); }
+
+        // 完成任务，触发双向评价
+        function completeParticipation(index) {
+            if (!confirm('确认完成该任务/预约？完成后将对合作方进行评价。')) return;
+            const part = store.currentUser.participations[index];
+            const post = findPostById(part.id);
+            // 确定评价目标
+            let targetUserId, targetUserName;
+            if (post) {
+                if (post.type === 'task') {
+                    // 如果当前用户是发布者，则评价接单者；如果是接单者，评价发布者
+                    if (post.publisherId === store.currentUser.id) {
+                        const claimer = (post.claimers||[]).find(c => c.userId !== store.currentUser.id);
+                        targetUserId = claimer ? claimer.userId : post.publisherId;
+                        targetUserName = claimer ? claimer.userName : post.publisherName;
+                    } else {
+                        targetUserId = post.publisherId;
+                        targetUserName = post.publisherName;
+                    }
+                } else {
+                    targetUserId = post.publisherId;
+                    targetUserName = post.publisherName;
+                }
+                // 更新状态
+                const applicants = getApplicantsForPost(post);
+                const applicant = applicants.find(a => a.userId === store.currentUser.id);
+                if (applicant) applicant.status = 'completed';
+            } else {
+                targetUserId = 'unknown'; targetUserName = '对方';
+            }
+            store.currentUser.participations.splice(index, 1);
+            // 存储待评价信息并打开评价模态框
+            store.currentRating = { postId: part.id, targetUserId, targetUserName };
+            document.getElementById('ratingTargetInfo').innerText = `你正在评价：${targetUserName}`;
+            // 重置星级
+            document.querySelectorAll('#starRating i').forEach(s => s.classList.remove('active'));
+            document.getElementById('starRatingText').innerText = '请点击星星评分';
+            document.getElementById('ratingComment').value = '';
+            showModal('ratingModal');
+            renderMyParticipations();
+            renderMyPosts();
+            refreshAllCards();
+        }
+
+        // 星级点击
+        document.addEventListener('DOMContentLoaded', function() {
+            const stars = document.querySelectorAll('#starRating i');
+            let currentRating = 0;
+            stars.forEach(star => {
+                star.addEventListener('click', function() {
+                    const value = parseInt(this.getAttribute('data-value'));
+                    currentRating = value;
+                    stars.forEach(s => {
+                        if (parseInt(s.getAttribute('data-value')) <= value) s.classList.add('active');
+                        else s.classList.remove('active');
+                    });
+                    document.getElementById('starRatingText').innerText = `已选择 ${value} 星`;
+                });
+            });
+            document.getElementById('starRating').addEventListener('mouseleave', function() {
+                // 保持显示当前选择
+            });
+        });
+
+        function submitRating() {
+            const stars = document.querySelectorAll('#starRating i.active').length;
+            const comment = document.getElementById('ratingComment').value.trim();
+            if (stars === 0) { showToast('warning', '请点击星星进行评分'); return; }
+            const ratingInfo = store.currentRating;
+            if (!ratingInfo) return;
+            // 保存评价（这里简单存入被评价用户的评价列表，如果有）
+            const targetUser = store.registeredUsers.find(u => u.id === ratingInfo.targetUserId);
+            if (targetUser) {
+                if (!targetUser.reviews) targetUser.reviews = [];
+                targetUser.reviews.push({
+                    fromUser: store.currentUser.name || store.currentUser.id,
+                    stars, comment, time: new Date().toISOString().slice(0,10)
+                });
+            }
+            showToast('success', `评价成功！你给 ${ratingInfo.targetUserName} 打了 ${stars} 星`);
+            closeModal('ratingModal');
+            store.currentRating = null;
+        }
+
+        // ==================== 登录/注册 ====================
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            if (tab === 'login') { document.querySelectorAll('.tab')[0].classList.add('active'); document.getElementById('loginTab').classList.add('active'); }
+            else { document.querySelectorAll('.tab')[1].classList.add('active'); document.getElementById('registerTab').classList.add('active'); }
+        }
+        function togglePassword(fieldId, icon) { const field = document.getElementById(fieldId); if (field.type==='password') { field.type='text'; icon.classList.remove('fa-eye-slash'); icon.classList.add('fa-eye'); } else { field.type='password'; icon.classList.remove('fa-eye'); icon.classList.add('fa-eye-slash'); } }
+        function validateRegId() { const id = document.getElementById('regId').value; const err = document.getElementById('regIdError'); if (!/^\d{10}$/.test(id)) { err.style.display='block'; return false; } else { err.style.display='none'; return true; } }
+        function doRegister() {
+            const id=document.getElementById('regId').value, pwd=document.getElementById('regPassword').value, confirm=document.getElementById('regConfirmPassword').value;
+            const college=document.getElementById('regCollege').value, year=document.getElementById('regYear').value;
+            if(!id||!pwd||!confirm||!college||!year){showToast('warning','请填写所有必填项');return;}
+            if(!/^\d{10}$/.test(id)){showToast('warning','学号必须为10位数字');return;}
+            if(pwd!==confirm){showToast('warning','两次密码不一致');return;}
+            if(store.registeredUsers.find(u=>u.id===id)){showToast('info','该学号已注册');return;}
+            const newUser={id,password:pwd,college,year,avatar:'https://via.placeholder.com/80',name:'用户'+id};
+            store.registeredUsers.push(newUser); store.currentUser={...newUser,participations:[]};
+            showToast('success','注册成功'); enterApp();
+        }
+        function doLogin() {
+            const id=document.getElementById('loginId').value, pwd=document.getElementById('loginPassword').value;
+            if(!id||!pwd){showToast('warning','请填写学号和密码');return;}
+            if(!/^\d{10}$/.test(id)){showToast('warning','学号必须为10位数字');return;}
+            const user=store.registeredUsers.find(u=>u.id===id&&u.password===pwd);
+            if(!user){document.getElementById('loginError').style.display='block';return;}
+            document.getElementById('loginError').style.display='none';
+            store.currentUser={...user,participations:[]};
+            store.currentUser.participations=[{type:'task',id:store.allTasks[0]?.id,title:'帮忙取快递 (F座)',publisher:'赵婷',rating:4.6,reward:'5 MUST币',desc:'快递在F座一楼快递柜',img:'https://via.placeholder.com/400x300/fdecea/e74c3c?text=Task',status:'进行中'}];
+            showToast('success','登录成功'); enterApp();
+        }
+        function enterApp() {
+            document.getElementById('loginPage').style.display='none'; document.getElementById('mainApp').style.display='block';
+            updateProfileDisplay(); refreshAllCards(); renderMyPosts(); renderMyParticipations(); showPage('home');
+        }
+        document.getElementById('logoutBtn').addEventListener('click',function(e){e.preventDefault();store.currentUser=null;store.currentViewing=null;store.currentEditingPost=null;document.getElementById('mainApp').style.display='none';document.getElementById('loginPage').style.display='flex';document.getElementById('loginId').value='';document.getElementById('loginPassword').value='';document.getElementById('loginError').style.display='none';showToast('info','已安全退出');});
+        function updateProfileDisplay() {
+            if(!store.currentUser) return;
+            document.getElementById('profileName').innerText = (store.currentUser.name||'用户') + ' (' + store.currentUser.id + ')';
+            document.getElementById('profileCollege').innerText = store.currentUser.college + ' · ' + store.currentUser.year + '级';
+            document.getElementById('profileAvatar').src = store.currentUser.avatar || 'https://via.placeholder.com/80';
+            document.getElementById('editNickname').value = store.currentUser.name || '';
+            document.getElementById('editCollege').value = store.currentUser.college || '创新工程学院';
+            document.getElementById('editYear').value = store.currentUser.year || '2023';
+            document.getElementById('editAvatarPreview').src = store.currentUser.avatar || 'https://via.placeholder.com/80';
+        }
+        const pageMap={home:'homePage',market:'marketPage',skill:'skillPage',project:'projectPage',task:'taskPage',my:'myPage'};
+        function showPage(pageId){
+            Object.values(pageMap).forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('active');});
+            const target=document.getElementById(pageMap[pageId]); if(target)target.classList.add('active');
+            document.querySelectorAll('.nav-links a').forEach(a=>a.classList.remove('nav-active'));
+            document.querySelectorAll(`.nav-${pageId}`).forEach(a=>a.classList.add('nav-active'));
+            if(pageId==='my'){renderMyPosts();renderMyParticipations();updateProfileDisplay();}
+            if(pageId==='market')renderMarketCards(); if(pageId==='skill')renderSkillCards();
+            if(pageId==='project')renderProjectCards(); if(pageId==='task')renderTaskCards();
+            window.scrollTo({top:0,behavior:'smooth'});
+        }
+        function showHome(){showPage('home');}
+        document.querySelectorAll('.nav-home').forEach(el=>el.addEventListener('click',e=>{e.preventDefault();showHome();}));
+        document.querySelectorAll('.nav-market').forEach(el=>el.addEventListener('click',e=>{e.preventDefault();showPage('market');}));
+        document.querySelectorAll('.nav-skill').forEach(el=>el.addEventListener('click',e=>{e.preventDefault();showPage('skill');}));
+        document.querySelectorAll('.nav-project').forEach(el=>el.addEventListener('click',e=>{e.preventDefault();showPage('project');}));
+        document.querySelectorAll('.nav-task').forEach(el=>el.addEventListener('click',e=>{e.preventDefault();showPage('task');}));
+        document.querySelectorAll('.nav-my').forEach(el=>el.addEventListener('click',e=>{e.preventDefault();showPage('my');}));
+        document.getElementById('homeLogo').addEventListener('click',showHome);
+        function showModal(id){document.getElementById(id).classList.add('active');document.body.style.overflow='hidden';}
+        function closeModal(id){document.getElementById(id).classList.remove('active');document.body.style.overflow='';}
+        document.querySelectorAll('.modal-close').forEach(btn=>{btn.addEventListener('click',function(){const modal=this.closest('.modal');if(modal){modal.classList.remove('active');document.body.style.overflow='';}});});
+        document.querySelectorAll('.modal').forEach(modal=>{modal.addEventListener('click',function(e){if(e.target===this){this.classList.remove('active');document.body.style.overflow='';}});});
+        function triggerFileUpload(id){document.getElementById(id).click();}
+        function previewImages(inputId,previewId){const input=document.getElementById(inputId);const preview=document.getElementById(previewId);preview.innerHTML='';if(input.files){for(let file of input.files){const reader=new FileReader();reader.onload=function(e){const img=document.createElement('img');img.src=e.target.result;preview.appendChild(img);};reader.readAsDataURL(file);}}}
+        function previewEditAvatar(event){const reader=new FileReader();reader.onload=function(){document.getElementById('editAvatarPreview').src=reader.result;};if(event.target.files[0])reader.readAsDataURL(event.target.files[0]);}
+        function sendMessage(){const input=document.getElementById('chatInput');const msg=input.value.trim();if(!msg)return;const chatBox=document.getElementById('chatMessages');const newMsg=document.createElement('div');newMsg.className='chat-message own';newMsg.innerText=msg;chatBox.appendChild(newMsg);input.value='';chatBox.scrollTop=chatBox.scrollHeight;}
+        document.getElementById('chatInput')?.addEventListener('keydown',function(e){if(e.key==='Enter')sendMessage();});
+        function saveProfile(){
+            if(!store.currentUser)return;
+            store.currentUser.name = document.getElementById('editNickname').value.trim() || ('用户'+store.currentUser.id);
+            store.currentUser.college = document.getElementById('editCollege').value;
+            store.currentUser.year = document.getElementById('editYear').value;
+            const newAvatar = document.getElementById('editAvatarPreview').src;
+            if(newAvatar && newAvatar !== store.currentUser.avatar) store.currentUser.avatar = newAvatar;
+            updateProfileDisplay(); closeModal('editProfileModal'); showToast('success','资料已更新');
+        }
+        const langToggle=document.getElementById('langToggle'); document.body;
+        langToggle.addEventListener('click',()=>{const current=document.body.getAttribute('data-lang');document.body.setAttribute('data-lang',current==='zh'?'en':'zh');});
+        document.addEventListener('keydown',function(e){if(e.key==='Escape'){document.querySelectorAll('.modal.active').forEach(m=>{m.classList.remove('active');document.body.style.overflow='';});}});
+        function init(){initDemoData();document.getElementById('loginPage').style.display='flex';document.getElementById('mainApp').style.display='none';document.getElementById('loginId').value='1230009568';document.getElementById('loginPassword').value='123456';refreshAllCards();}
+        init();
+    </script>
+</body>
+</html>
